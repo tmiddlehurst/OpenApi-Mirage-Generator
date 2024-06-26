@@ -1,0 +1,174 @@
+openapi: 3.0.3
+info:
+  title: Securities
+  description: |
+    This is the API for retrieving Securities.
+  contact:
+    email: api.operations@nadex.com
+  version: ${project.version}
+# TODO define URL namespace for internal API
+servers:
+  - url: https://ndev-securities-retriever.cdna-internal.com/
+    description: Dev environment "ndev"
+tags:
+  - name: Securities
+    description: Retrieval of Securities
+paths:
+  /securities:
+    get:
+      tags:
+        - securities-controller
+      operationId: findAllSecurities
+      parameters:
+        - name: symbol
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SecurityDefinitionMessage'
+        '400':
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        context:
+          type: object
+          additionalProperties:
+            type: string
+    PutOrCall:
+      type: string
+      enum:
+        - Put
+        - Call
+        - Chooser
+        - Other
+        - DEFAULT
+    SecurityType:
+      type: string
+      enum:
+        - Other
+        - DEFAULT
+    SecurityDefinition:
+      type: object
+      properties:
+        symbol:
+          type: string
+          example: NX.VS.BKT.GBP-USD.W.1.14
+        securityID:
+          type: string
+          example: 202405220923260000235870D
+        securityIDSource:
+          type: string
+        product:
+          type: string
+        cfiCode:
+          type: string
+        securityType:
+          $ref: '#/components/schemas/SecurityType'
+        securitySubType:
+          type: string
+          example: BRACKET_OPTION
+        maturityDate:
+          type: string
+          example: 20240524
+        maturityTime:
+          type: string
+          example: 20:00:00
+        strikePrice:
+          type: string
+        contractMultiplier:
+          type: string
+        minPriceIncrement:
+          type: string
+        minPriceIncrementAmount:
+          type: string
+        capPrice:
+          type: string
+        floorPrice:
+          type: string
+        securityDesc:
+          type: string
+        putOrCall:
+          $ref: '#/components/schemas/PutOrCall'
+        positionLimit:
+          type: string
+    UnderlyingInstrument:
+      type: object
+      properties:
+        underlyingSymbol:
+          type: string
+          example: GBP-USD
+        underlyingSecurityID:
+          type: string
+        underlyingSecurityIDSource:
+          type: string
+        underlyingProduct:
+          type: string
+        underlyingCfiCode:
+          type: string
+        underlyingSecurityType:
+          type: string
+        underlyingSecuritySubType:
+          $ref: '#/components/schemas/SecurityType'
+        underlyingMaturityDate:
+          type: string
+        underlyingMaturityTime:
+          type: string
+        underlyingStrikePrice:
+          type: string
+        underlyingContractMultiplier:
+          type: string
+        underlyingMinPriceIncrement:
+          type: string
+        underlyingMinPriceIncrementAmount:
+          type: string
+        underlyingCapPrice:
+          type: string
+        underlyingFloorPrice:
+          type: string
+        underlyingSecurityDesc:
+          type: string
+        underlyingPutOrCall:
+          $ref: '#/components/schemas/PutOrCall'
+        underlyingCurrency:
+          type: string
+    SecurityDefinitionMessage:
+      type: object
+      properties:
+        msgType:
+          type: string
+          enum:
+            - 'd'
+        instrument:
+          $ref: '#/components/schemas/SecurityDefinition'
+        underlyingInstruments:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnderlyingInstrument'
+        currency:
+          type: string
+          example: USD
+        marketID:
+          type: string
