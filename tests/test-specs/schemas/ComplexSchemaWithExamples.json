@@ -28,7 +28,11 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "example": [
+        "Buy Groceries",
+        "Buy Coffee"
+      ]
     }
   }
 }

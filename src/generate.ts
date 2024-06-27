@@ -1,57 +1,68 @@
-// const fs = require('fs');
-// const yaml = require('yaml');
 import fs, { write } from 'fs';
-import YAML from 'yaml';
 import { OpenAPIV3 } from 'openapi-types';
-import { getModelChoicesFromSchemas } from './getCliChoicesForModelDefinitions';
-import { writeFactoriesDefinitionsFile, writeFactoryFile, writeModelDefinitionsFile, writeRouteHandlerFiles, writeRouteHandlers, writeServerFile } from './writeFiles';
+import { getModelChoicesFromSchemas, inquireModelsToCreate } from './promptForModels';
+import { buildServerFile } from './buildFiles/buildServer';
+import { type PromptFunction } from 'inquirer';
+import { importFile, writeFile, type FileToWrite } from './utils';
+import { buildModelDefinitionsFile } from './buildFiles/buildModelDefinitions';
+import { buildFactoryDefinitionsFile } from './buildFiles/buildFactoryDefinitions';
+import { buildFactoryFile } from './buildFiles/buildFactory';
 
-export function importFile(filePath: string): { spec: OpenAPIV3.Document, preferredFileExtension: string } {
-  const isYaml: boolean = ['yml', 'yaml'].includes(inputFileExtension as string);
-  const input = fs.readFileSync(filePath, "utf8");
-  const parsedSpec: OpenAPIV3.Document = isYaml ? YAML.parse(input) : JSON.parse(input);
-  return { spec: parsedSpec, preferredFileExtension: filePath.split('.').pop() as string };
-}
-
-async function generate(inputFilePath: string, outputDir: string) {
+export async function generate(inputFilePath: string, outputDir: string, prompt: PromptFunction) {
   if (!inputFilePath && typeof inputFilePath !== "string") {
     console.error("Invalid input file path provided");
   }
   if (!outputDir && typeof outputDir !== "string") {
     console.error("Invalid output dir path provided");
   }
-  const models = {};
-  let spec: OpenAPIV3.Document, preferredFileExtension;
-
   try {
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
     }
   } catch (e) {
-    console.error('Unable to create output dir ')
+    throw new Error('Unable to create output dir ');
   }
+
+  let filesToWrite: FileToWrite[] = [];
+  let spec: OpenAPIV3.Document;
+  let preferredFileExtension: string;
+  let hasModels = false;
 
   try {
     const importResult = importFile(inputFilePath);
     spec = importResult.spec as OpenAPIV3.Document;
     preferredFileExtension = importResult.preferredFileExtension;
   } catch (e) {
-    console.error(`Invalid file ${inputFilePath} provided, this is not valid JSON or YAML`);
+    throw new Error(`Invalid file ${inputFilePath} provided, this is not valid JSON or YAML. ${e}`);
   }
 
   console.log(spec.components?.schemas);
-  const modelsToCreate: string[] = getModelChoicesFromSchemas(parsedSchema.components.schemas);
+  if (spec.components && spec.components.schemas && Object.keys(spec.components.schemas).length) {
+    // TODO: does this work still?
+    const { models } = await inquireModelsToCreate(prompt, spec.components.schemas as Record<string, OpenAPIV3.SchemaObject>);
 
-  const modelDefinitionsFile: string = await writeModelDefinitionsFile(modelsToCreate)
-  const factoryDefinitionsFiles: string = await writeFactoriesDefinitionsFile(modelsToCreate);
-  const serverFile: string = await writeServerFile(spec);
-  const handlerFiles: string[] = await writeRouteHandlerFiles(spec);
-  const factoryFiles: string[] = await modelsToCreate.map((modelName) => writeFactoryFile(modelName, spec.components?.schemas[modelName]));
+    console.log("models to create: ", models);
+
+    if (models.length) {
+      hasModels = true;
+      filesToWrite.push({ fileName: 'models.ts', content: buildModelDefinitionsFile(models) });
+      filesToWrite.push({ fileName: 'factories.ts', content: buildFactoryDefinitionsFile(models) });
+      models.forEach((modelName: string) => {
+        filesToWrite.push({ fileName: `factories/${modelName}.ts`, content: buildFactoryFile(modelName, spec.components?.schemas[modelName]) });
+      });
+    }
+  }
+
+
+  // const handlerFiles: string[] = await writeRouteHandlerFiles(spec);
+  // map() writeRouteHandlerFile
+
+
+  filesToWrite.push({ fileName: 'server.ts', content: buildServerFile(spec) });
+
+  for (const fileToWrite of filesToWrite) {
+    console.log('writing file: ', fileToWrite.fileName);
+    writeFile(fileToWrite, outputDir);
+  }
 
 }
-
-// generate(Bun.argv[2], Bun.argv[3]);
-// inquireModelsToCreate(
-//   [{ name: 'cats', value: 'cats', checked: true },
-//   { name: 'dogs', value: 'dogs', checked: false }]
-// )

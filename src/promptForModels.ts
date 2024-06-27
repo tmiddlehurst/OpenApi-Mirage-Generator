@@ -1,12 +1,12 @@
-import inquirer from 'inquirer';
+import { type CheckboxChoiceOptions, type PromptFunction } from 'inquirer';
 import type { OpenAPIV3 } from 'openapi-types';
 
 const SCHEMA_NAMES_IGNORE_LIST: string[] = [
   "ERROR", "SORT", "PAGEABLE"
-]
+];
 
-
-export async function inquireModelsToCreate(choices: CliChoice[]): Promise<string[]> {
+export async function inquireModelsToCreate(prompt: PromptFunction, schemas: Record<string, OpenAPIV3.SchemaObject>): Promise<Record<string, any>> {
+  const choices: CheckboxChoiceOptions[] = getModelChoicesFromSchemas(schemas);
   const displayOptions = [];
 
   displayOptions.push({
@@ -16,34 +16,26 @@ export async function inquireModelsToCreate(choices: CliChoice[]): Promise<strin
     choices,
   });
 
-  const userInput = await inquirer.prompt(displayOptions);
+  const userInput = await prompt(displayOptions);
   return userInput;
 }
 
-
-type CliChoice = {
-  name: string;
-  value: string;
-  checked?: boolean;
-}
-
-type Schemas = {
-  [key: string]: OpenAPIV3.NonArraySchemaObject
-}
-
-export function getModelChoicesFromSchemas(schemas: Schemas): CliChoice[] {
-  const modelChoices: CliChoice[] = []
+export function getModelChoicesFromSchemas(schemas: Record<string, OpenAPIV3.SchemaObject>): CheckboxChoiceOptions[] {
+  const modelChoices: CheckboxChoiceOptions[] = [];
   const schemaNames = Object.keys(schemas);
 
   for (const name of schemaNames) {
     if (isPluralOfOtherSchema(name, schemaNames)) {
-      console.log(`schema ${name} disabled since it is plural of other named schema`)
+      console.log(`schema ${name} disabled since it is plural of other named schema`);
+      modelChoices.push({ name, value: name, checked: false });
     } else if (SCHEMA_NAMES_IGNORE_LIST.includes(name.toUpperCase())) {
-      console.log(`excluding schema ${name} since it is named in schema ignnore list`)
+      console.log(`schema ${name} option disabled since it is named in schema ignnore list`);
+      modelChoices.push({ name, value: name, checked: false });
     } else if (schemas[name].type !== "object") {
-      console.log(`excluding schema ${name} since it is not of type "object"`)
+      // TODO: handle "anyOf" etc.
+      console.log(`excluding schema ${name} since it is not of type "object"`);
     } else {
-      modelChoices.push({ name, value: name })
+      modelChoices.push({ name, value: name });
     }
   }
 

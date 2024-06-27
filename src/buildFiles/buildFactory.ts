@@ -3,83 +3,7 @@ import prettier from 'prettier';
 import { faker } from '@faker-js/faker';
 import type { OpenAPIV3 } from 'openapi-types';
 
-export function writeRouteHandlerFiles(spec: OpenAPIV3.Document): string[] {
-
-}
-
-export function writeRouteHandlerConfig(spec: OpenAPIV3.Document): { handlerImports: string; routes: string } {
-  const handlerImports = '';
-  const routes = '';
-
-  return { handlerImports, routes };
-}
-
-export function writeServerFile(spec: OpenAPIV3.Document): string {
-  const { handlerImports, routes } = writeRouteHandlerConfig(spec);
-
-  return `
-    import { createServer, JSONAPISerializer } from 'miragejs';
-    import { factories } from './factories';
-    import { models } from './models';
-    ${handlerImports}
-
-    const server = createServer({
-      environment: 'test'
-      models,
-      factories,
-
-      serializers: {
-        application: JSONAPISerializer,
-      },
-
-      seeds(server) {},
-
-      routes() {
-        ${routes}
-      }
-    }); `;
-}
-
-export function writeModelDefinitionsFile(modelNames: string[]): string {
-  const modelDefinitions: string = modelNames.reduce((definitions, modelName) => {
-    return definitions + `
-      const ${modelName}Model = <ModelDefinition>Model.extend({});`;
-  }, '');
-  const modelsMap: string = modelNames.reduce((definitions, modelName) => {
-    return definitions + `${camelcase(modelName)}: ${modelName}Model,`
-  }, '');
-
-  console.log(modelsMap);
-
-  const file = `
-    import { Model } from 'miragejs';
-    import type { ModelDefinition } from "miragejs/-types";
-
-    ${modelDefinitions}
-
-    export const models = {
-      ${modelsMap}
-    };`;
-  return file;
-}
-
-export function writeFactoriesDefinitionsFile(modelNames: string[]): string {
-  const factoryDefinitions: string = modelNames.reduce((definitions, modelName) => {
-    return definitions + `${camelcase(modelName)}: ${modelName}Factory,`
-  }, '');
-
-  const file = `
-    import MemberFactory from './factories/member';
-    import PaymentCardFactory from './factories/paymentCard';
-
-    export const factories = {
-      ${factoryDefinitions}
-    };`;
-
-  return file;
-}
-
-export async function writeFactoryFile(modelName: string, schemaDefinition: OpenAPIV3.SchemaObject): string {
+export function buildFactoryFile(modelName: string, schemaDefinition: OpenAPIV3.SchemaObject): string {
   console.log(schemaDefinition);
 
   const rawFile = `  import { Factory } from 'miragejs';
@@ -87,18 +11,9 @@ export async function writeFactoryFile(modelName: string, schemaDefinition: Open
   export default Factory.extend(
     ${getObjectProperties(modelName, schemaDefinition)}
   )
-    `
+    `;
   // const file = await format(rawFile, `${ modelName } Factory`);
   return rawFile;
-}
-
-function format(input: string, name: string): Promise<string> {
-  return prettier.format(input, {
-    semi: true, singleQuote: true, parser: 'typescript', trailingComma: 'none'
-  }).then((value: string) => value, (reason: any) => {
-    console.error('Error formatting input: ', name, reason);
-    return '';
-  });
 }
 
 // string
@@ -129,12 +44,18 @@ export function getValueForProperty(propertyName: string, property: OpenAPIV3.Sc
   console.log(`Property ${propertyName} is of type ${property.type
     } `);
   if (property.type === 'array') {
+    if (property.example) {
+      if (property.items.type === "string") {
+        return "[" + property.example.reduce((acc, item) => acc + `"${item}", `, '') + "]";
+      }
+      return "[" + property.example + "]";
+    }
     const max = property.maxItems || 5;
     const min = property.minItems || 1;
     const randomInt = faker.number.int({ min, max });
-    const arr = []
+    const arr = [];
     for (let i = 0; i < randomInt; i++) {
-      arr.push(getValueForProperty(propertyName, property.items))
+      arr.push(getValueForProperty(propertyName, property.items));
     }
     return "[" + arr + "]";
   }
@@ -142,9 +63,6 @@ export function getValueForProperty(propertyName: string, property: OpenAPIV3.Sc
     return getObjectProperties(propertyName, property);
   }
   if (property.type === 'string') {
-    if (property.example) {
-      return `"${property.example}"`;
-    }
     if (property.enum) {
       return `"${property.enum[0]}"`;
     }
@@ -152,6 +70,14 @@ export function getValueForProperty(propertyName: string, property: OpenAPIV3.Sc
   if (property.enum) {
     return property.enum[0];
   }
+  if (property.example) {
+    // string example values must be explicitly wrapped in quotes when added to the file template
+    if (typeof property.example === 'string') {
+      return `"${property.example}"`;
+    }
+    return property.example;
+  }
+
   return getRandomStringNumberOrBool(propertyName, property.type);
 }
 
