@@ -1,6 +1,5 @@
 import { OpenAPIV3 } from 'openapi-types';
 import _ from 'lodash';
-import { getValueForProperty } from './buildFactory';
 
 export function buildRouteHandler(operationObject: OpenAPIV3.OperationObject): string {
   const response = operationObject.responses["200"] as OpenAPIV3.ResponseObject;

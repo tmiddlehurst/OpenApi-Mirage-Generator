@@ -9,7 +9,7 @@ export function buildFactoryFile(modelName: string, schemaDefinition: OpenAPIV3.
   const rawFile = `  import { Factory } from 'miragejs';
 
   export default Factory.extend(
-    ${getObjectProperties(modelName, schemaDefinition)}
+    ${getObjectProperties(schemaDefinition, modelName)}
   )
     `;
   // const file = await format(rawFile, `${ modelName } Factory`);
@@ -24,12 +24,12 @@ export function buildFactoryFile(modelName: string, schemaDefinition: OpenAPIV3.
 // boolean
 // ref
 
-export function getObjectProperties(objectName: string, object: OpenAPIV3.SchemaObject): string {
+export function getObjectProperties(object: OpenAPIV3.SchemaObject, objectName?: string): string {
   console.log('getting values for properties of: ', objectName);
   const propertyNames = Object.keys(object.properties);
   return `{ ${propertyNames.reduce((props, propertyName, i) => {
     const commaIfNotLastItem = i === propertyNames.length - 1 ? '' : ',';
-    return props + `${propertyName}:${getValueForProperty(propertyName, object.properties[propertyName])}${commaIfNotLastItem}`;
+    return props + `${propertyName}:${getValueForProperty(object.properties[propertyName], propertyName)}${commaIfNotLastItem}`;
   }, '')
     }
   } `;
@@ -38,11 +38,14 @@ export function getObjectProperties(objectName: string, object: OpenAPIV3.Schema
 // TODO: return these as optional if a "required" array is present and the prop is not in it? Maybe only relevant to typescript
 
 // TODO: should this return real values, e.g bool, string, array, object, then they are stringified in getObjectProperties()?
-export function getValueForProperty(propertyName: string, property: OpenAPIV3.SchemaObject) {
+export function getValueForProperty(property: OpenAPIV3.SchemaObject, propertyName?: string) {
   // TODO: handle ref here
 
-  console.log(`Property ${propertyName} is of type ${property.type
-    } `);
+  if (propertyName) {
+    console.log(`Property ${propertyName} is of type ${property.type
+      } `);
+  }
+
   if (property.type === 'array') {
     if (property.example) {
       if (property.items.type === "string") {
@@ -55,12 +58,12 @@ export function getValueForProperty(propertyName: string, property: OpenAPIV3.Sc
     const randomInt = faker.number.int({ min, max });
     const arr = [];
     for (let i = 0; i < randomInt; i++) {
-      arr.push(getValueForProperty(propertyName, property.items));
+      arr.push(getValueForProperty(property.items, propertyName));
     }
     return "[" + arr + "]";
   }
   if (property.type === 'object') {
-    return getObjectProperties(propertyName, property);
+    return getObjectProperties(property, propertyName);
   }
   if (property.type === 'string') {
     if (property.enum) {
@@ -78,24 +81,26 @@ export function getValueForProperty(propertyName: string, property: OpenAPIV3.Sc
     return property.example;
   }
 
-  return getRandomStringNumberOrBool(propertyName, property.type);
+  return getRandomStringNumberOrBool(property.type, propertyName);
 }
 
-export function getRandomStringNumberOrBool(propertyName: string, type: string): string | number | boolean | null {
-  if (propertyName.match(/total|amount|value|max|min/i) && ['number', 'integer'].includes(type)) {
-    return faker.number.int({ min: 0, max: 10000 });
-  }
-  if (propertyName.match(/timestamp|ts/i) && ['number', 'integer'].includes(type)) {
-    return (faker.date.between({ from: '2020-01-01T00:00:00.000Z', to: '2030-01-01T00:00:00.000Z' }) as Date).getMilliseconds();
-  }
-  if (propertyName.match(/date/i) && type === 'string') {
-    const date = faker.date.between({ from: '2020-01-01T00:00:00.000Z', to: '2030-01-01T00:00:00.000Z' }).toISOString();
-    console.log("DATE: ", date);
+export function getRandomStringNumberOrBool(type: string, propertyName?: string): string | number | boolean | null {
+  if (propertyName) {
+    if (propertyName.match(/total|amount|value|max|min/i) && ['number', 'integer'].includes(type)) {
+      return faker.number.int({ min: 0, max: 10000 });
+    }
+    if (propertyName.match(/timestamp|ts/i) && ['number', 'integer'].includes(type)) {
+      return (faker.date.between({ from: '2020-01-01T00:00:00.000Z', to: '2030-01-01T00:00:00.000Z' }) as Date).getMilliseconds();
+    }
+    if (propertyName.match(/date/i) && type === 'string') {
+      const date = faker.date.between({ from: '2020-01-01T00:00:00.000Z', to: '2030-01-01T00:00:00.000Z' }).toISOString();
+      console.log("DATE: ", date);
 
-    return `"${date}"`;
-  }
-  if (propertyName.match(/country/i) && type === 'string') {
-    return `"${faker.location.countryCode('alpha-3')}"`;
+      return `"${date}"`;
+    }
+    if (propertyName.match(/country/i) && type === 'string') {
+      return `"${faker.location.countryCode('alpha-3')}"`;
+    }
   }
   if (type === 'boolean') {
     return true;

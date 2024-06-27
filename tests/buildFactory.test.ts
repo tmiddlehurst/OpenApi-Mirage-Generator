@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'bun:test';
-import { getObjectProperties, getRandomStringNumberOrBool, getValueForProperty, buildFactoryFile } from '../src/buildFiles/buildFactory';
+import { getRandomStringNumberOrBool, getValueForProperty, buildFactoryFile } from '../src/buildFiles/buildFactory';
 import prettier from 'prettier';
 import type { OpenAPIV3 } from 'openapi-types';
 
@@ -8,15 +8,15 @@ const exampleFactory = "import { Factory } from 'miragejs';\n\nexport default Fa
 describe('Getting field values', () => {
 
   test('gets example primitive value for a field', () => {
-    expect(typeof getRandomStringNumberOrBool('total', 'number')).toBe('number');
-    expect(typeof getRandomStringNumberOrBool('timestamp', 'number')).toBe('number');
-    expect(typeof getRandomStringNumberOrBool('date', 'string')).toBe('string');
-    expect(typeof getRandomStringNumberOrBool('country', 'string')).toBe('string');
-    expect(typeof getRandomStringNumberOrBool('foo', 'string')).toBe('string');
-    expect(typeof getRandomStringNumberOrBool('name', 'string')).toBe('string');
-    expect(typeof getRandomStringNumberOrBool('bar', 'number')).toBe('number');
-    expect(typeof getRandomStringNumberOrBool('baz', 'boolean')).toBe('boolean');
-    // expect(getRandomStringNumberOrBool('startDate', 'string')).toBe('10:123:AA');
+    expect(typeof getRandomStringNumberOrBool('number', 'total')).toBe('number');
+    expect(typeof getRandomStringNumberOrBool('number', 'timestamp')).toBe('number');
+    expect(typeof getRandomStringNumberOrBool('string', 'date')).toBe('string');
+    expect(typeof getRandomStringNumberOrBool('string', 'country')).toBe('string');
+    expect(typeof getRandomStringNumberOrBool('string', 'foo')).toBe('string');
+    expect(typeof getRandomStringNumberOrBool('string', 'name')).toBe('string');
+    expect(typeof getRandomStringNumberOrBool('number', 'bar')).toBe('number');
+    expect(typeof getRandomStringNumberOrBool('boolean', 'baz')).toBe('boolean');
+    // expect(getRandomStringNumberOrBool('string', 'startDate')).toBe('10:123:AA');
   });
 
   // test('gets value for string enum property', () => {
@@ -31,7 +31,7 @@ describe('Getting field values', () => {
   //       "DEFAULT"
   //     ]
   //   };
-  //   expect(getValueForProperty(propertyName, property)).toBe("Put");
+  //   expect(getValueForProperty(property, propertyName)).toBe("Put");
   // });
 
   // test('gets value for string property with example', () => {
@@ -40,7 +40,7 @@ describe('Getting field values', () => {
   //     "type": "string",
   //     "example": "202405220923260000235870D"
   //   };
-  //   expect(getValueForProperty(propertyName, property)).toBe("202405220923260000235870D");
+  //   expect(getValueForProperty(property, propertyName)).toBe("202405220923260000235870D");
   // });
 
   test('gets value for number property with example', () => {
@@ -49,7 +49,7 @@ describe('Getting field values', () => {
       "type": "number",
       "example": 20240524
     };
-    expect(getValueForProperty(propertyName, property)).toBe(20240524);
+    expect(getValueForProperty(property, propertyName)).toBe(20240524);
   });
 
   test('gets value for integer property with example', () => {
@@ -58,7 +58,7 @@ describe('Getting field values', () => {
       "type": "integer",
       "example": 20240524
     };
-    expect(getValueForProperty(propertyName, property)).toBe(20240524);
+    expect(getValueForProperty(property, propertyName)).toBe(20240524);
   });
 
   // test('gets value for string property with example', () => {
@@ -67,7 +67,7 @@ describe('Getting field values', () => {
   //     "type": "string",
   //     "example": "202405220923260000235870D"
   //   };
-  //   expect(getValueForProperty(propertyName, property)).toBe("202405220923260000235870D");
+  //   expect(getValueForProperty(property, propertyName)).toBe("202405220923260000235870D");
   // });
 
   // test('gets value for array property of type string with example', () => {
@@ -82,7 +82,7 @@ describe('Getting field values', () => {
   //       "Buy Coffee"
   //     ]
   //   };
-  //   expect(getValueForProperty(propertyName, property)).toBe("202405220923260000235870D");
+  //   expect(getValueForProperty(property, propertyName)).toBe("202405220923260000235870D");
   // });
 
   test('gets value for string property', () => {
@@ -90,7 +90,7 @@ describe('Getting field values', () => {
     const property: OpenAPIV3.SchemaObject = {
       "type": "string",
     };
-    expect(typeof getValueForProperty(propertyName, property)).toBe("string");
+    expect(typeof getValueForProperty(property, propertyName)).toBe("string");
   });
 
   test('gets value for integer property', () => {
@@ -98,7 +98,7 @@ describe('Getting field values', () => {
     const property: OpenAPIV3.SchemaObject = {
       "type": "integer",
     };
-    expect(typeof getValueForProperty(propertyName, property)).toBe("number");
+    expect(typeof getValueForProperty(property, propertyName)).toBe("number");
   });
 
   test('gets value for number property', () => {
@@ -106,7 +106,7 @@ describe('Getting field values', () => {
     const property: OpenAPIV3.SchemaObject = {
       "type": "number",
     };
-    expect(typeof getValueForProperty(propertyName, property)).toBe("number");
+    expect(typeof getValueForProperty(property, propertyName)).toBe("number");
   });
 
   test('gets value for boolean property', () => {
@@ -114,7 +114,7 @@ describe('Getting field values', () => {
     const property: OpenAPIV3.SchemaObject = {
       "type": "boolean",
     };
-    expect(typeof getValueForProperty(propertyName, property)).toBe("boolean");
+    expect(typeof getValueForProperty(property, propertyName)).toBe("boolean");
   });
 
   // test('gets example value for array of strings', () => {
@@ -126,7 +126,7 @@ describe('Getting field values', () => {
   //     }
   //   };
 
-  //   const res = getValueForProperty(propertyName, property);
+  //   const res = getValueForProperty(property, propertyName);
   //   res.forEach((val) => {
   //     expect(typeof val).toBe('string');
   //   });
@@ -149,7 +149,7 @@ describe('Getting field values', () => {
   //   };
 
   //   const testRegexp = new RegExp(/{ name:[a-z]*,age:[0-9]* }/);
-  //   const res = getObjectProperties(propertyName, property);
+  //   const res = getObjectProperties(property, propertyName);
   //   expect(testRegexp.test(res)).toEqual(true);
   // });
 
@@ -177,7 +177,7 @@ describe('Getting field values', () => {
   //     }
   //   };
 
-  //   const res = getObjectProperties(propertyName, property);
+  //   const res = getObjectProperties(property, propertyName);
   //   console.log(res);
   //   const testRegexp = new RegExp(/{ level1:{ level2:{ name:[a-z]*,age:[0-9]* } } }/s);
   //   expect(testRegexp.test(res)).toEqual(true);
