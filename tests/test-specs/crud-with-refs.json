@@ -251,7 +251,7 @@
         ],
         "properties": {
           "name": {
-            "type": ""
+            "type": "string"
           },
           "tag": {
             "type": "string"

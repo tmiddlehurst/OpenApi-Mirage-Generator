@@ -1,14 +1,15 @@
-import type { OpenAPIV3 } from 'openapi-types';
+import type { HandlerConfig } from '../getRouteHandlerConfig';
 
-export function writeRouteHandlerConfig(spec: OpenAPIV3.Document): { handlerImports: string; routes: string; } {
-  const handlerImports = '';
-  const routes = '';
+export function buildServerFile(handlers: HandlerConfig[]): string {
+  let handlerImports = '';
+  let routes = '';
 
-  return { handlerImports, routes };
-}
+  for (const handler of handlers) {
+    const mirageSafePath = handler.path.replace(/\{([^}]+)\}/g, ':$1');
 
-export function buildServerFile(spec: OpenAPIV3.Document): string {
-  const { handlerImports, routes } = writeRouteHandlerConfig(spec);
+    handlerImports += `import ${handler.name} from ./handlers/${handler.name}\n`;
+    routes += `this.${handler.method}(${handler.path}, ${mirageSafePath})`;
+  }
 
   return `
     import { createServer, JSONAPISerializer } from 'miragejs';

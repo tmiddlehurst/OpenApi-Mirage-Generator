@@ -25,7 +25,7 @@ describe("Prompting member to choose models to define", () => {
     expect(filteredSchemas[0].name).toBe('MemberNote');
   });
 
-  test("ignores models with names from ignore list in modelChoices", () => {
+  test("disables models with names from ignore list in modelChoices", () => {
     const schemas = {
       MemberNote: {
         type: "object",
@@ -47,8 +47,8 @@ describe("Prompting member to choose models to define", () => {
 
     const filteredSchemas = getModelChoicesFromSchemas(schemas);
     console.log(filteredSchemas);
-    expect(filteredSchemas.length).toBe(1);
-    expect(filteredSchemas[0].name).toBe('MemberNote');
+    expect(filteredSchemas.length).toBe(2);
+    expect(filteredSchemas[1].checked).toBe(false);
   });
 
   test("isPluralOfOtherSchema", () => {

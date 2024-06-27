@@ -7,6 +7,7 @@ import { importFile, writeFile, type FileToWrite } from './utils';
 import { buildModelDefinitionsFile } from './buildFiles/buildModelDefinitions';
 import { buildFactoryDefinitionsFile } from './buildFiles/buildFactoryDefinitions';
 import { buildFactoryFile } from './buildFiles/buildFactory';
+import { getHandlersFromPaths } from './getRouteHandlerConfig';
 
 export async function generate(inputFilePath: string, outputDir: string, prompt: PromptFunction) {
   if (!inputFilePath && typeof inputFilePath !== "string") {
@@ -54,11 +55,11 @@ export async function generate(inputFilePath: string, outputDir: string, prompt:
   }
 
 
+  const routeHandlerConfig = getHandlersFromPaths(spec.paths);
   // const handlerFiles: string[] = await writeRouteHandlerFiles(spec);
   // map() writeRouteHandlerFile
 
-
-  filesToWrite.push({ fileName: 'server.ts', content: buildServerFile(spec) });
+  filesToWrite.push({ fileName: 'server.ts', content: buildServerFile(routeHandlerConfig) });
 
   for (const fileToWrite of filesToWrite) {
     console.log('writing file: ', fileToWrite.fileName);
