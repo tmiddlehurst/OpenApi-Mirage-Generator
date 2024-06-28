@@ -7,8 +7,8 @@ export function buildServerFile(handlers: HandlerConfig[]): string {
   for (const handler of handlers) {
     const mirageSafePath = handler.path.replace(/\{([^}]+)\}/g, ':$1');
 
-    handlerImports += `import ${handler.name} from ./handlers/${handler.name}\n`;
-    routes += `this.${handler.method}(${handler.path}, ${mirageSafePath})`;
+    handlerImports += `import ${handler.name} from \'./handlers/${handler.name}\'\n`;
+    routes += `this.${handler.method}(\'${mirageSafePath}\', ${handler.name});\n`;
   }
 
   return `
@@ -18,7 +18,7 @@ export function buildServerFile(handlers: HandlerConfig[]): string {
     ${handlerImports}
 
     const server = createServer({
-      environment: 'test'
+      environment: 'test',
       models,
       factories,
 
@@ -26,7 +26,7 @@ export function buildServerFile(handlers: HandlerConfig[]): string {
         application: JSONAPISerializer,
       },
 
-      seeds(server) {},
+      seeds() {},
 
       routes() {
         ${routes}
