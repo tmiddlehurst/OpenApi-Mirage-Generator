@@ -16,12 +16,13 @@ export type FileToWrite = {
   content: string;
 };
 
-export function writeFile(fileToWrite: FileToWrite, outputDir: string): void {
+export async function writeFile(fileToWrite: FileToWrite, outputDir: string): Promise<void> {
   // TODO: prepend outputDir
   if (!fs.existsSync('factories')) {
     console.log('factories does not exist');
   }
-  return fs.writeFileSync(path.join(outputDir, fileToWrite.fileName), fileToWrite.content);
+  const formattedFile = await format(fileToWrite.content);
+  return fs.writeFileSync(path.join(outputDir, fileToWrite.fileName), formattedFile);
 }
 
 export function format(input: string, name?: string): Promise<string> {
