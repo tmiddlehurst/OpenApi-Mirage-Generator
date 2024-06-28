@@ -5,34 +5,18 @@
       "schema": {
         "type": "array",
         "items": {
-          "allOf": [
-            {
-              "type": "object",
-              "required": [
-                "name"
-              ],
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "tag": {
-                  "type": "string"
-                }
-              }
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
             },
-            {
-              "type": "object",
-              "required": [
-                "id"
-              ],
-              "properties": {
-                "id": {
-                  "type": "integer",
-                  "format": "int64"
-                }
-              }
+            "tag": {
+              "type": "string"
             }
-          ]
+          }
         }
       }
     }

@@ -1,5 +1,6 @@
 import { OpenAPIV3 } from 'openapi-types';
 import _ from 'lodash';
+import { getObjectProperties } from './buildFactory';
 
 export function buildRouteHandler(operationObject: OpenAPIV3.OperationObject): string {
   const response = operationObject.responses["200"] as OpenAPIV3.ResponseObject;
@@ -21,8 +22,10 @@ export function buildRouteHandler(operationObject: OpenAPIV3.OperationObject): s
 // uses "content" property
 export function getBody(response: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject): string {
   let body: string = '';
-  if (response.content && response["application/json"]) {
+  if (response.content && response.content["application/json"]) {
     // return getObjectProperties()
+    console.log('getting body, calling getObjectProperties() with ', response.content["application/json"].schema);
+    return getObjectProperties(response.content["application/json"].schema);
   }
   return `{ ${body} }`;
 }
