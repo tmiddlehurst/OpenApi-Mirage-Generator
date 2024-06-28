@@ -2,10 +2,17 @@ import { OpenAPIV3 } from 'openapi-types';
 import _ from 'lodash';
 import { getValueForProperty } from './buildFactory';
 
-export function buildRouteHandler(operationObject: OpenAPIV3.OperationObject): string {
-  const response = operationObject.responses["200"] as OpenAPIV3.ResponseObject;
-  let headers = getHeaders(response);
-  let body = getBody(response);
+export function buildRouteHandler(operationObject: OpenAPIV3.OperationObject, name?: string): string {
+  let headers = '{ }';
+  let body = '{ }';
+  const first2xxResponse: string | undefined = Object.keys(operationObject.responses).find((key: string) => key.startsWith('20'));
+  if (first2xxResponse) {
+    const response = operationObject.responses[first2xxResponse];
+    headers = getHeaders(response);
+    body = getBody(response);
+  } else {
+    console.error(`No success response for handler ${name}`);
+  }
 
   return `
   import { Request, Response } from 'miragejs';
@@ -30,6 +37,7 @@ export function getBody(response: OpenAPIV3.ResponseObject | OpenAPIV3.Reference
 
 export function getHeaders(response: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject | undefined): string {
   let headers: string = '';
+  console.log('RESPONSE: ', response);
   if (response.headers) {
     for (const headerName in response.headers) {
       const exampleValue = response.headers[headerName].schema.type === 'integer' ? 1 : '\"val\"';

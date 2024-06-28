@@ -1,5 +1,6 @@
 import type { OpenAPIV3 } from 'openapi-types';
 import fs from 'fs';
+import path from 'node:path';
 import YAML from 'yaml';
 import prettier from 'prettier';
 
@@ -17,7 +18,10 @@ export type FileToWrite = {
 
 export function writeFile(fileToWrite: FileToWrite, outputDir: string): void {
   // TODO: prepend outputDir
-  return fs.writeFileSync(fileToWrite.fileName, fileToWrite.content);
+  if (!fs.existsSync('factories')) {
+    console.log('factories does not exist');
+  }
+  return fs.writeFileSync(path.join(outputDir, fileToWrite.fileName), fileToWrite.content);
 }
 
 export function format(input: string, name?: string): Promise<string> {

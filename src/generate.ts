@@ -1,19 +1,22 @@
-import fs, { write } from 'fs';
+import fs from 'fs';
+import path from 'node:path';
 import { OpenAPIV3 } from 'openapi-types';
-import { getModelChoicesFromSchemas, inquireModelsToCreate } from './promptForModels';
+import { inquireModelsToCreate } from './promptForModels';
 import { buildServerFile } from './buildFiles/buildServer';
 import { type PromptFunction } from 'inquirer';
 import { importFile, writeFile, type FileToWrite } from './utils';
 import { buildModelDefinitionsFile } from './buildFiles/buildModelDefinitions';
 import { buildFactoryDefinitionsFile } from './buildFiles/buildFactoryDefinitions';
 import { buildFactoryFile } from './buildFiles/buildFactory';
-import { getHandlersFromPaths } from './getRouteHandlerConfig';
+import { getHandlersFromPaths, type HandlerConfig } from './getRouteHandlerConfig';
+import { buildRouteHandler } from './buildFiles/buildRouteHandler';
 
 export async function generate(inputFilePath: string, outputDir: string, prompt: PromptFunction) {
   if (!inputFilePath && typeof inputFilePath !== "string") {
     console.error("Invalid input file path provided");
   }
   if (!outputDir && typeof outputDir !== "string") {
+    // TODO: test outputdir is real path
     console.error("Invalid output dir path provided");
   }
   try {
@@ -45,6 +48,10 @@ export async function generate(inputFilePath: string, outputDir: string, prompt:
     console.log("models to create: ", models);
 
     if (models.length) {
+      const pathToFactories = path.join(outputDir, 'factories');
+      if (!fs.existsSync(pathToFactories)) {
+        fs.mkdirSync(pathToFactories);
+      }
       hasModels = true;
       filesToWrite.push({ fileName: 'models.ts', content: buildModelDefinitionsFile(models) });
       filesToWrite.push({ fileName: 'factories.ts', content: buildFactoryDefinitionsFile(models) });
@@ -54,10 +61,16 @@ export async function generate(inputFilePath: string, outputDir: string, prompt:
     }
   }
 
-
   const routeHandlerConfig = getHandlersFromPaths(spec.paths);
-  // const handlerFiles: string[] = await writeRouteHandlerFiles(spec);
-  // map() writeRouteHandlerFile
+  if (routeHandlerConfig.length) {
+    const pathToHandlers = path.join(outputDir, 'handlers');
+    if (!fs.existsSync(pathToHandlers)) {
+      fs.mkdirSync(pathToHandlers);
+    }
+    routeHandlerConfig.forEach((handler: HandlerConfig) => {
+      filesToWrite.push({ fileName: `handlers/${handler.name}.ts`, content: buildRouteHandler(spec.paths[handler.path][handler.method], handler.name) });
+    });
+  }
 
   filesToWrite.push({ fileName: 'server.ts', content: buildServerFile(routeHandlerConfig) });
 
