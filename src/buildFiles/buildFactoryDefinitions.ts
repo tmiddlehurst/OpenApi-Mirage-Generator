@@ -5,9 +5,12 @@ export function buildFactoryDefinitionsFile(modelNames: string[]): string {
     return definitions + `${camelcase(modelName)}: ${modelName}Factory,`;
   }, '');
 
+  const imports: string = modelNames.reduce((imports, modelName) => {
+    return imports + `import ${modelName}Factory from \'./factories/${modelName}\';\n`;
+  }, '');
+
   const file = `
-    import MemberFactory from './factories/member';
-    import PaymentCardFactory from './factories/paymentCard';
+    ${imports}
 
     export const factories = {
       ${factoryDefinitions}

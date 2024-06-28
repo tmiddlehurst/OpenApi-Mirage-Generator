@@ -51,6 +51,7 @@ describe('Building a route handler file', () => {
     const expected = await format(exampleRouteHandlerNoContent);
     expect(testInput).toEqual(expected);
   });
+
   test('builds an handler file with examples', async () => {
     const exampleOperation = require('./test-specs/operations/get-returning-body-with-examples.json');
     const res = buildRouteHandler(exampleOperation);
@@ -63,6 +64,10 @@ describe('Building a route handler file', () => {
     const exampleOperation = require('./test-specs/operations/get-returning-headers-and-body.json');
     const res = buildRouteHandler(exampleOperation);
     expect(res.length).toBeGreaterThan(0);
+  });
+
+  test('handles API which has 204 instead of 200', async () => {
+
   });
 
   // test('builds an handler file with refs', () => {});
