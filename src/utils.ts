@@ -28,3 +28,17 @@ export function format(input: string, name?: string): Promise<string> {
     return '';
   });
 }
+
+export function isPluralOfOtherSchema(name: string, schemaNames: string[]): boolean {
+  name = name.toUpperCase();
+  if (name.endsWith('S')) {
+    console.log(`${name} is plural`);
+    if (schemaNames.map(s => s.toUpperCase()).includes(name.slice(0, -1))) {
+      console.log(`${name} is plural of other string in list`);
+      return true;
+    } else return false;
+  } else {
+    console.log(`${name} is not plural`);
+    return false;
+  }
+}

@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'bun:test';
-import { getRandomStringNumberOrBool, getValueForProperty, buildFactoryFile } from '../src/buildFiles/buildFactory';
+import { getRandomStringNumberOrBool, getValueForProperty, buildFactoryFile, getObjectProperties } from '../src/buildFiles/buildFactory';
 import prettier from 'prettier';
 import type { OpenAPIV3 } from 'openapi-types';
 
@@ -16,32 +16,32 @@ describe('Getting field values', () => {
     expect(typeof getRandomStringNumberOrBool('string', 'name')).toBe('string');
     expect(typeof getRandomStringNumberOrBool('number', 'bar')).toBe('number');
     expect(typeof getRandomStringNumberOrBool('boolean', 'baz')).toBe('boolean');
-    // expect(getRandomStringNumberOrBool('string', 'startDate')).toBe('10:123:AA');
+    expect(getRandomStringNumberOrBool('string', 'startDate')).toMatch(/^\"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\"$/);
   });
 
-  // test('gets value for string enum property', () => {
-  //   const propertyName = 'PutOrCall';
-  //   const property: OpenAPIV3.SchemaObject = {
-  //     "type": "string",
-  //     "enum": [
-  //       "Put",
-  //       "Call",
-  //       "Chooser",
-  //       "Other",
-  //       "DEFAULT"
-  //     ]
-  //   };
-  //   expect(getValueForProperty(property, propertyName)).toBe("Put");
-  // });
+  test('gets value for string enum property', () => {
+    const propertyName = 'PutOrCall';
+    const property: OpenAPIV3.SchemaObject = {
+      "type": "string",
+      "enum": [
+        "Put",
+        "Call",
+        "Chooser",
+        "Other",
+        "DEFAULT"
+      ]
+    };
+    expect(getValueForProperty(property, propertyName)).toBe('\"Put\"');
+  });
 
-  // test('gets value for string property with example', () => {
-  //   const propertyName = 'SecurityID';
-  //   const property: OpenAPIV3.SchemaObject = {
-  //     "type": "string",
-  //     "example": "202405220923260000235870D"
-  //   };
-  //   expect(getValueForProperty(property, propertyName)).toBe("202405220923260000235870D");
-  // });
+  test('gets value for string property with example', () => {
+    const propertyName = 'SecurityID';
+    const property: OpenAPIV3.SchemaObject = {
+      "type": "string",
+      "example": "202405220923260000235870D"
+    };
+    expect(getValueForProperty(property, propertyName)).toBe('\"202405220923260000235870D\"');
+  });
 
   test('gets value for number property with example', () => {
     const propertyName = 'maturityDate';
@@ -61,29 +61,20 @@ describe('Getting field values', () => {
     expect(getValueForProperty(property, propertyName)).toBe(20240524);
   });
 
-  // test('gets value for string property with example', () => {
-  //   const propertyName = 'SecurityID';
-  //   const property: OpenAPIV3.SchemaObject = {
-  //     "type": "string",
-  //     "example": "202405220923260000235870D"
-  //   };
-  //   expect(getValueForProperty(property, propertyName)).toBe("202405220923260000235870D");
-  // });
-
-  // test('gets value for array property of type string with example', () => {
-  //   const propertyName = 'transactions';
-  //   const property: OpenAPIV3.SchemaObject = {
-  //     "type": "array",
-  //     "items": {
-  //       "type": "string"
-  //     },
-  //     "example": [
-  //       "Buy Groceries",
-  //       "Buy Coffee"
-  //     ]
-  //   };
-  //   expect(getValueForProperty(property, propertyName)).toBe("202405220923260000235870D");
-  // });
+  test('gets value for array property of type string with example', () => {
+    const propertyName = 'transactions';
+    const property: OpenAPIV3.SchemaObject = {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "example": [
+        "Buy Groceries",
+        "Buy Coffee"
+      ]
+    };
+    expect(getValueForProperty(property, propertyName)).toBe('[\"Buy Groceries\", \"Buy Coffee\", ]');
+  });
 
   test('gets value for string property', () => {
     const propertyName = 'SecurityID';
@@ -117,71 +108,76 @@ describe('Getting field values', () => {
     expect(typeof getValueForProperty(property, propertyName)).toBe("boolean");
   });
 
-  // test('gets example value for array of strings', () => {
-  //   const propertyName = 'Dogs';
-  //   const property: OpenAPIV3.SchemaObject = {
-  //     type: "array",
-  //     items: {
-  //       type: "string",
-  //     }
-  //   };
+  test('gets value for array of strings', () => {
+    const propertyName = 'Dogs';
+    const property: OpenAPIV3.SchemaObject = {
+      type: "array",
+      items: {
+        type: "string",
+      }
+    };
 
-  //   const res = getValueForProperty(property, propertyName);
-  //   res.forEach((val) => {
-  //     expect(typeof val).toBe('string');
-  //   });
-  //   expect(res.length < 6).toBe(true);
-  //   expect(res.length > 0).toBe(true);
-  // });
+    const testRegexp = new RegExp(/^\["[^"]*"(,"[^"]*"){0,4}\]$/);
+    const res = getValueForProperty(property, propertyName);
+    expect(testRegexp.test(res)).toEqual(true);
+  });
 
-  // test('getObjectProperties gets example values for shallow object', () => {
-  //   const propertyName = 'NestedProp';
-  //   const property: OpenAPIV3.SchemaObject = {
-  //     type: "object",
-  //     properties: {
-  //       name: {
-  //         type: "string",
-  //       },
-  //       age: {
-  //         type: "number",
-  //       }
-  //     }
-  //   };
+  test('getObjectProperties gets example values for shallow object', () => {
+    const propertyName = 'NestedProp';
+    const property: OpenAPIV3.SchemaObject = {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+        },
+        age: {
+          type: "number",
+        }
+      }
+    };
 
-  //   const testRegexp = new RegExp(/{ name:[a-z]*,age:[0-9]* }/);
-  //   const res = getObjectProperties(property, propertyName);
-  //   expect(testRegexp.test(res)).toEqual(true);
-  // });
+    const testRegexp = new RegExp(/{\s+name:\"[a-z]*\",age:[0-9]*\s+}/);
+    const res = getObjectProperties(property, propertyName);
+    expect(testRegexp.test(res)).toEqual(true);
+  });
 
-  // test('getObjectProperties gets example values for nested object', () => {
-  //   const propertyName = 'NestedProp';
-  //   const property: OpenAPIV3.SchemaObject = {
-  //     type: "object",
-  //     properties: {
-  //       level1: {
-  //         type: "object",
-  //         properties: {
-  //           level2: {
-  //             type: "object",
-  //             properties: {
-  //               name: {
-  //                 type: "string",
-  //               },
-  //               age: {
-  //                 type: "number",
-  //               }
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
-  //   };
+  test('getObjectProperties for 200 response', () => {
+    const exampleResponse = require('./test-specs/responses/200-with-headers-and-content.json');
 
-  //   const res = getObjectProperties(property, propertyName);
-  //   console.log(res);
-  //   const testRegexp = new RegExp(/{ level1:{ level2:{ name:[a-z]*,age:[0-9]* } } }/s);
-  //   expect(testRegexp.test(res)).toEqual(true);
-  // });
+    const res = getValueForProperty(exampleResponse.content["application/json"].schema, '200-test');
+    expect(typeof res).toEqual('string');
+    expect(res.length).toBeGreaterThan(0);
+  });
+
+  test('getObjectProperties gets example values for nested object', () => {
+    const propertyName = 'NestedProp';
+    const property: OpenAPIV3.SchemaObject = {
+      type: "object",
+      properties: {
+        level1: {
+          type: "object",
+          properties: {
+            level2: {
+              type: "object",
+              properties: {
+                name: {
+                  type: "string",
+                },
+                age: {
+                  type: "number",
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+
+    const res = getObjectProperties(property, propertyName);
+    console.log(res);
+    const testRegexp = new RegExp(/{ level1:{ level2:{ name:\"[a-z]*\",age:[0-9]*\s+}\s+}\s+}/s);
+    expect(testRegexp.test(res)).toEqual(true);
+  });
 
 });
 
@@ -207,7 +203,6 @@ describe('Building a factory file', () => {
     expect(typeof res).toEqual("string");
   });
 
-  // Failing
   test('writes a factory file for a model with example values', async () => {
     const modelName = 'Member';
     const schema = require('./test-specs/schemas/ComplexSchemaWithExamples.json');

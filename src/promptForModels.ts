@@ -1,5 +1,6 @@
 import { type CheckboxChoiceOptions, type PromptFunction } from 'inquirer';
 import type { OpenAPIV3 } from 'openapi-types';
+import { isPluralOfOtherSchema } from './utils';
 
 const SCHEMA_NAMES_IGNORE_LIST: string[] = [
   "ERROR", "SORT", "PAGEABLE"
@@ -40,18 +41,4 @@ export function getModelChoicesFromSchemas(schemas: Record<string, OpenAPIV3.Sch
   }
 
   return modelChoices;
-}
-
-export function isPluralOfOtherSchema(name: string, schemaNames: string[]): boolean {
-  name = name.toUpperCase();
-  if (name.endsWith('S')) {
-    console.log(`${name} is plural`);
-    if (schemaNames.map(s => s.toUpperCase()).includes(name.slice(0, -1))) {
-      console.log(`${name} is plural of other string in list`);
-      return true;
-    } else return false;
-  } else {
-    console.log(`${name} is not plural`);
-    return false;
-  }
 }

@@ -1,28 +1,15 @@
-import camelcase from 'camelcase';
-import prettier from 'prettier';
 import { faker } from '@faker-js/faker';
 import type { OpenAPIV3 } from 'openapi-types';
 
 export function buildFactoryFile(modelName: string, schemaDefinition: OpenAPIV3.SchemaObject): string {
-  console.log(schemaDefinition);
-
-  const rawFile = `  import { Factory } from 'miragejs';
+  const rawFile = `import { Factory } from 'miragejs';
 
   export default Factory.extend(
     ${getObjectProperties(schemaDefinition, modelName)}
   )
-    `;
-  // const file = await format(rawFile, `${ modelName } Factory`);
+  `;
   return rawFile;
 }
-
-// string
-// integer
-// number
-// object
-// array
-// boolean
-// ref
 
 export function getObjectProperties(object: OpenAPIV3.SchemaObject, objectName?: string): string {
   console.log('getting values for properties of: ', objectName);

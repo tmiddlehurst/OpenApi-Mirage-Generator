@@ -1,11 +1,11 @@
 import { OpenAPIV3 } from 'openapi-types';
 import _ from 'lodash';
-import { getObjectProperties } from './buildFactory';
+import { getValueForProperty } from './buildFactory';
 
 export function buildRouteHandler(operationObject: OpenAPIV3.OperationObject): string {
   const response = operationObject.responses["200"] as OpenAPIV3.ResponseObject;
-  let headers = getHeaders(response.headers);
-  let body = '';
+  let headers = getHeaders(response);
+  let body = getBody(response);
 
   return `
   import { Request, Response } from 'miragejs';
@@ -19,13 +19,11 @@ export function buildRouteHandler(operationObject: OpenAPIV3.OperationObject): s
 `;
 }
 
-// uses "content" property
 export function getBody(response: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject): string {
   let body: string = '';
   if (response.content && response.content["application/json"]) {
-    // return getObjectProperties()
     console.log('getting body, calling getObjectProperties() with ', response.content["application/json"].schema);
-    return getObjectProperties(response.content["application/json"].schema);
+    return getValueForProperty(response.content["application/json"].schema);
   }
   return `{ ${body} }`;
 }
@@ -40,4 +38,3 @@ export function getHeaders(response: OpenAPIV3.ResponseObject | OpenAPIV3.Refere
   }
   return `{ ${headers} }`;
 };
-// export function buildResponse();

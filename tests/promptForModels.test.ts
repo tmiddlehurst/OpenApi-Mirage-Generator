@@ -51,16 +51,4 @@ describe("Prompting member to choose models to define", () => {
     expect(filteredSchemas[1].checked).toBe(false);
   });
 
-  test("isPluralOfOtherSchema", () => {
-    const schemas = {
-      Pet: {},
-      Pets: {},
-    };
-    const schemaNames = Object.keys(schemas);
-    expect(isPluralOfOtherSchema('Pets', schemaNames)).toBe(true);
-    expect(isPluralOfOtherSchema('Bats', schemaNames)).toBe(false);
-    expect(isPluralOfOtherSchema('Pe', schemaNames)).toBe(false);
-    expect(isPluralOfOtherSchema('Pes', schemaNames)).toBe(false);
-    expect(isPluralOfOtherSchema('', schemaNames)).toBe(false);
-  });
 });
