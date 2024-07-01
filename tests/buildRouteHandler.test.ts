@@ -35,12 +35,14 @@ describe('Building a route handler file', () => {
   test('builds body for empty response', () => {
     const exampleResponse = require('./test-specs/responses/200-empty.json');
     const expected = '{  }';
+
     expect(getBody(exampleResponse)).toEqual(expected);
   });
 
   test('builds body for response', () => {
     const exampleResponse = require('./test-specs/responses/200-with-headers-and-content.json');
     const res = getBody(exampleResponse);
+
     expect(res.replace(/\s/g, '')).toMatch(/\[(\{name:"[^"]*",tag:"[^"]*"\},?)*\]/);
   });
 
@@ -49,6 +51,7 @@ describe('Building a route handler file', () => {
     const res = buildRouteHandler(exampleOperation);
     const testInput = await format(res);
     const expected = await format(exampleRouteHandlerNoContent);
+
     expect(testInput).toEqual(expected);
   });
 
@@ -63,6 +66,7 @@ describe('Building a route handler file', () => {
   test('builds an handler file', async () => {
     const exampleOperation = require('./test-specs/operations/get-returning-headers-and-body.json');
     const res = buildRouteHandler(exampleOperation);
+
     expect(res.length).toBeGreaterThan(0);
   });
 

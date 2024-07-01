@@ -18,9 +18,9 @@ describe("building model definitions", () => {
   test('writes model definitions file from modelNames', async () => {
     const modelNames = ['Member', 'PaymentCard'];
     const buildResult = await buildModelDefinitionsFile(modelNames);
-
     const expectedOutput = await format(exampleModels);
     const input = await format(buildResult);
+
     expect(input).toBe(expectedOutput);
   });
 });

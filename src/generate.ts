@@ -29,30 +29,21 @@ export async function generate(inputFilePath: string, outputDir: string, prompt:
 
   let filesToWrite: FileToWrite[] = [];
   let spec: OpenAPIV3.Document;
-  let preferredFileExtension: string;
-  let hasModels = false;
 
   try {
-    const importResult = importFile(inputFilePath);
-    spec = importResult.spec as OpenAPIV3.Document;
-    preferredFileExtension = importResult.preferredFileExtension;
+    spec = importFile(inputFilePath);
   } catch (e) {
     throw new Error(`Invalid file ${inputFilePath} provided, this is not valid JSON or YAML. ${e}`);
   }
 
-  console.log(spec.components?.schemas);
-  if (spec.components && spec.components.schemas && Object.keys(spec.components.schemas).length) {
-    // TODO: does this work still?
+  if (spec?.components?.schemas && Object.keys(spec.components.schemas).length) {
     const { models } = await inquireModelsToCreate(prompt, spec.components.schemas as Record<string, OpenAPIV3.SchemaObject>);
-
-    console.log("models to create: ", models);
 
     if (models.length) {
       const pathToFactories = path.join(outputDir, 'factories');
       if (!fs.existsSync(pathToFactories)) {
         fs.mkdirSync(pathToFactories);
       }
-      hasModels = true;
       filesToWrite.push({ fileName: 'models.ts', content: buildModelDefinitionsFile(models) });
       filesToWrite.push({ fileName: 'factories.ts', content: buildFactoryDefinitionsFile(models) });
       models.forEach((modelName: string) => {

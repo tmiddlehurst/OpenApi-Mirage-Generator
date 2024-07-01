@@ -7,11 +7,11 @@ const exampleServer = `
     import { factories } from './factories';
     import { models } from './models';
     import getCatByIdHandler from './handlers/getCatByIdHandler'
-    import updateCatByIdHandler from './handlers/getCatByIdHandler'
-    import deleteCatByIdHandler from './handlers/getCatByIdHandler'
+    import updateCatByIdHandler from './handlers/updateCatByIdHandler'
+    import deleteCatByIdHandler from './handlers/deleteCatByIdHandler'
 
     const server = createServer({
-      environment: 'test'
+      environment: 'test',
       models,
       factories,
 
@@ -19,12 +19,12 @@ const exampleServer = `
         application: JSONAPISerializer,
       },
 
-      seeds(server) {},
+      seeds() {},
 
       routes() {
         this.get('/cats/:catId', getCatByIdHandler);
-        this.put('/cats/:catId', getCatByIdHandler);
-        this.delete('/cats/:catId', getCatByIdHandler);
+        this.put('/cats/:catId', updateCatByIdHandler);
+        this.delete('/cats/:catId', deleteCatByIdHandler);
       }
     }); `;
 

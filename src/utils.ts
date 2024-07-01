@@ -4,11 +4,11 @@ import path from 'node:path';
 import YAML from 'yaml';
 import prettier from 'prettier';
 
-export function importFile(filePath: string): { spec: OpenAPIV3.Document, preferredFileExtension: string; } {
+export function importFile(filePath: string): OpenAPIV3.Document {
   const isYaml: boolean = new RegExp(/\.ya?ml$/).test(filePath);
   const input = fs.readFileSync(filePath, "utf8");
   const parsedSpec: OpenAPIV3.Document = isYaml ? YAML.parse(input) : JSON.parse(input);
-  return { spec: parsedSpec, preferredFileExtension: filePath.split('.').pop() as string };
+  return parsedSpec;
 }
 
 export type FileToWrite = {
@@ -17,7 +17,6 @@ export type FileToWrite = {
 };
 
 export async function writeFile(fileToWrite: FileToWrite, outputDir: string): Promise<void> {
-  // TODO: prepend outputDir
   if (!fs.existsSync('factories')) {
     console.log('factories does not exist');
   }

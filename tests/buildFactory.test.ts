@@ -1,5 +1,6 @@
 import { expect, test, describe } from 'bun:test';
-import { getRandomStringNumberOrBool, getValueForProperty, buildFactoryFile, getObjectProperties } from '../src/buildFiles/buildFactory';
+import { buildFactoryFile } from '../src/buildFiles/buildFactory';
+import { getRandomStringNumberOrBool, getValueForProperty, getObjectProperties } from '../src/getExampleValue';
 import prettier from 'prettier';
 import type { OpenAPIV3 } from 'openapi-types';
 
@@ -31,6 +32,7 @@ describe('Getting field values', () => {
         "DEFAULT"
       ]
     };
+
     expect(getValueForProperty(property, propertyName)).toBe('\"Put\"');
   });
 
@@ -40,6 +42,7 @@ describe('Getting field values', () => {
       "type": "string",
       "example": "202405220923260000235870D"
     };
+
     expect(getValueForProperty(property, propertyName)).toBe('\"202405220923260000235870D\"');
   });
 
@@ -58,6 +61,7 @@ describe('Getting field values', () => {
       "type": "integer",
       "example": 20240524
     };
+
     expect(getValueForProperty(property, propertyName)).toBe(20240524);
   });
 
@@ -73,6 +77,7 @@ describe('Getting field values', () => {
         "Buy Coffee"
       ]
     };
+
     expect(getValueForProperty(property, propertyName)).toBe('[\"Buy Groceries\", \"Buy Coffee\", ]');
   });
 
@@ -81,6 +86,7 @@ describe('Getting field values', () => {
     const property: OpenAPIV3.SchemaObject = {
       "type": "string",
     };
+
     expect(typeof getValueForProperty(property, propertyName)).toBe("string");
   });
 
@@ -89,6 +95,7 @@ describe('Getting field values', () => {
     const property: OpenAPIV3.SchemaObject = {
       "type": "integer",
     };
+
     expect(typeof getValueForProperty(property, propertyName)).toBe("number");
   });
 
@@ -97,6 +104,7 @@ describe('Getting field values', () => {
     const property: OpenAPIV3.SchemaObject = {
       "type": "number",
     };
+
     expect(typeof getValueForProperty(property, propertyName)).toBe("number");
   });
 
@@ -105,6 +113,7 @@ describe('Getting field values', () => {
     const property: OpenAPIV3.SchemaObject = {
       "type": "boolean",
     };
+
     expect(typeof getValueForProperty(property, propertyName)).toBe("boolean");
   });
 
@@ -116,10 +125,9 @@ describe('Getting field values', () => {
         type: "string",
       }
     };
-
-    const testRegexp = new RegExp(/^\["[^"]*"(,"[^"]*"){0,4}\]$/);
     const res = getValueForProperty(property, propertyName);
-    expect(testRegexp.test(res)).toEqual(true);
+
+    expect(res).toMatch(/^\["[^"]*"(,"[^"]*"){0,4}\]$/g);
   });
 
   test('getObjectProperties gets example values for shallow object', () => {
@@ -135,16 +143,15 @@ describe('Getting field values', () => {
         }
       }
     };
-
-    const testRegexp = new RegExp(/{\s+name:\"[a-z]*\",age:[0-9]*\s+}/);
     const res = getObjectProperties(property, propertyName);
-    expect(testRegexp.test(res)).toEqual(true);
+
+    expect(res).toMatch(/{\s+name:\"[a-z]*\",age:[0-9]*\s+}/);
   });
 
   test('getObjectProperties for 200 response', () => {
     const exampleResponse = require('./test-specs/responses/200-with-headers-and-content.json');
-
     const res = getValueForProperty(exampleResponse.content["application/json"].schema, '200-test');
+
     expect(typeof res).toEqual('string');
     expect(res.length).toBeGreaterThan(0);
   });
@@ -172,11 +179,9 @@ describe('Getting field values', () => {
         }
       }
     };
-
     const res = getObjectProperties(property, propertyName);
-    console.log(res);
-    const testRegexp = new RegExp(/{ level1:{ level2:{ name:\"[a-z]*\",age:[0-9]*\s+}\s+}\s+}/s);
-    expect(testRegexp.test(res)).toEqual(true);
+
+    expect(res).toMatch(/{ level1:{ level2:{ name:\"[a-z]*\",age:[0-9]*\s+}\s+}\s+}/s);
   });
 
 });
@@ -196,7 +201,6 @@ describe('Building a factory file', () => {
   test('writes a factory file for a model', async () => {
     const modelName = 'Member';
     const schema = require('./test-specs/schemas/PaymentCard.json');
-    console.log(schema);
     const res = await buildFactoryFile(modelName, schema);
 
     expect(res.length).toBeGreaterThan(0);
@@ -207,14 +211,13 @@ describe('Building a factory file', () => {
     const modelName = 'Member';
     const schema = require('./test-specs/schemas/ComplexSchemaWithExamples.json');
     const res = await buildFactoryFile(modelName, schema);
-    console.log(res);
-
     const formattedRes = await prettier.format(res, {
       semi: true, singleQuote: true, parser: 'typescript', trailingComma: 'none'
     });
     const expected = await prettier.format(exampleFactory, {
       semi: true, singleQuote: true, parser: 'typescript', trailingComma: 'none'
     });
+
     expect(formattedRes).toEqual(expected);
   });
 });
