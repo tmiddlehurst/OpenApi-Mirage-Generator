@@ -23,6 +23,12 @@ export function getValueForProperty(property: OpenAPIV3.SchemaObject, propertyNa
       } `);
   }
 
+  if (property.oneOf || property.anyOf) {
+    // return object compliant with the first object in the list
+  }
+  if (property.allOf) {
+    // merge all objects in list and return an example object which complies with this
+  }
   if (property.type === 'array') {
     if (property.example) {
       if (property.items.type === "string") {

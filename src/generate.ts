@@ -10,6 +10,7 @@ import { buildFactoryDefinitionsFile } from './buildFiles/buildFactoryDefinition
 import { buildFactoryFile } from './buildFiles/buildFactory';
 import { getHandlersFromPaths, type HandlerConfig } from './getRouteHandlerConfig';
 import { buildRouteHandler } from './buildFiles/buildRouteHandler';
+import { resolveRefs } from './resolveRefs';
 
 export async function generate(inputFilePath: string, outputDir: string, prompt: PromptFunction) {
   if (!inputFilePath && typeof inputFilePath !== "string") {
@@ -32,6 +33,7 @@ export async function generate(inputFilePath: string, outputDir: string, prompt:
 
   try {
     spec = importFile(inputFilePath);
+    spec = resolveRefs(spec);
   } catch (e) {
     throw new Error(`Invalid file ${inputFilePath} provided, this is not valid JSON or YAML. ${e}`);
   }
@@ -47,10 +49,11 @@ export async function generate(inputFilePath: string, outputDir: string, prompt:
       filesToWrite.push({ fileName: 'models.ts', content: buildModelDefinitionsFile(models) });
       filesToWrite.push({ fileName: 'factories.ts', content: buildFactoryDefinitionsFile(models) });
       models.forEach((modelName: string) => {
-        filesToWrite.push({ fileName: `factories/${modelName}.ts`, content: buildFactoryFile(modelName, spec.components?.schemas[modelName]) });
+        filesToWrite.push({ fileName: `factories/${modelName}.ts`, content: buildFactoryFile(modelName, spec.components?.schemas[modelName] as OpenAPIV3.SchemaObject) });
       });
     }
   }
+
 
   const routeHandlerConfig = getHandlersFromPaths(spec.paths);
   if (routeHandlerConfig.length) {

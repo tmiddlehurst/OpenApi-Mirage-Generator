@@ -145,7 +145,7 @@ describe('Getting field values', () => {
     };
     const res = getObjectProperties(property, propertyName);
 
-    expect(res).toMatch(/{\s+name:\"[a-z]*\",age:[0-9]*\s+}/);
+    expect(res).toMatch(/{\s+name:\"[A-z-.,\s]*\",age:[0-9]*\s+}/);
   });
 
   test('getObjectProperties for 200 response', () => {
@@ -181,7 +181,7 @@ describe('Getting field values', () => {
     };
     const res = getObjectProperties(property, propertyName);
 
-    expect(res).toMatch(/{ level1:{ level2:{ name:\"[a-z]*\",age:[0-9]*\s+}\s+}\s+}/s);
+    expect(res).toMatch(/{ level1:{ level2:{ name:\"[A-z-.,\s]*\",age:[0-9]*\s+}\s+}\s+}/);
   });
 
 });
