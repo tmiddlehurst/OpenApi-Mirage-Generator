@@ -10,8 +10,14 @@ function recursiveReplace(baseObject: Record<string, any>, current?: Record<stri
   let refsFound = 0;
   current = current || baseObject;
   for (const key in current) {
-    if (typeof current[key] === 'object' && !Array.isArray(current[key])) {
-      recursiveReplace(baseObject, current[key]);
+    if (typeof current[key] === 'object') {
+      if (!Array.isArray(current[key])) {
+        recursiveReplace(baseObject, current[key]);
+      } else {
+        if (current[key][0] && typeof current[key][0] === 'object') {
+          current[key].forEach(element => recursiveReplace(baseObject, element));
+        }
+      }
     } else {
       if (key === '$ref') {
         refsFound += 1;
@@ -39,8 +45,8 @@ function recursiveReplace(baseObject: Record<string, any>, current?: Record<stri
 export function getWithNestedPath(object: Record<string, any>, pathSegments: string[]): any {
   while (pathSegments.length > 0) {
     const key = pathSegments[0];
-    // console.log('current: ', object);
     console.log('key: ', key);
+    console.log('current: ', object);
     console.log('value: ', object[key]);
     object = object[key];
     pathSegments.shift();

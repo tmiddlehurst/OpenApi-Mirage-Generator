@@ -4,13 +4,6 @@ import { test, describe, expect } from 'bun:test';
 const shallowRefs = require('./test-specs/resolving-refs/shallow-refs.json');
 const nestedRefs = require('./test-specs/resolving-refs/nested-refs.json');
 
-const aShallowInput = () => {
-  return { ...shallowRefs };
-};
-const aNestedInput = () => {
-  return { ...nestedRefs };
-};
-
 test('getting with a nested path', () => {
   const input = JSON.parse(`{
     "paths": {
@@ -48,7 +41,7 @@ test('getting with a nested path', () => {
 
 describe('resolving $refs in document', () => {
   test('resolves shallow $refs', () => {
-    const input = aShallowInput();
+    const input = shallowRefs;
     expect(resolveRefs(input).paths).toEqual({
       // @ts-expect-error this is a test case so not a real openapi doc
       "/pets/{id}": {
@@ -75,7 +68,7 @@ describe('resolving $refs in document', () => {
   });
 
   test('resolves nested $refs', () => {
-    const input = aNestedInput();
+    const input = nestedRefs;
     expect(resolveRefs(input).paths).toEqual({
       // @ts-expect-error this is a test case so not a real openapi doc
       "/pets/{id}": {
@@ -104,5 +97,48 @@ describe('resolving $refs in document', () => {
         },
       },
     });
+  });
+
+  test('resolves refs which are in an array', () => {
+    const input = require('./test-specs/resolving-refs/refs-in-array.json');
+    expect(resolveRefs(input).paths["/pets"].patch.requestBody.content["application/json"]).toEqual(JSON.parse(`
+      {
+        "schema": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "age": {
+                  "type": "integer"
+                },
+                "nickname": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "age"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "pet_type": {
+                  "type": "string",
+                  "enum": [
+                    "Cat",
+                    "Dog"
+                  ]
+                },
+                "hunts": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "pet_type"
+              ]
+            }
+          ]
+        }
+      }`));
   });
 });

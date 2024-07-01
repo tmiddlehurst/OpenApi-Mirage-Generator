@@ -15,7 +15,7 @@ export function getObjectProperties(object: OpenAPIV3.SchemaObject, objectName?:
 // TODO: return these as optional if a "required" array is present and the prop is not in it? Maybe only relevant to typescript
 
 // TODO: should this return real values, e.g bool, string, array, object, then they are stringified in getObjectProperties()?
-export function getValueForProperty(property: OpenAPIV3.SchemaObject, propertyName?: string) {
+export function getValueForProperty(property: OpenAPIV3.SchemaObject, propertyName?: string): any {
   // TODO: handle ref here
 
   if (propertyName) {
@@ -32,7 +32,7 @@ export function getValueForProperty(property: OpenAPIV3.SchemaObject, propertyNa
   if (property.type === 'array') {
     if (property.example) {
       if (property.items.type === "string") {
-        return "[" + property.example.reduce((acc, item) => acc + `"${item}", `, '') + "]";
+        return "[" + property.example.reduce((acc: string, item: string) => acc + `"${item}", `, '') + "]";
       }
       return "[" + property.example + "]";
     }
@@ -41,7 +41,7 @@ export function getValueForProperty(property: OpenAPIV3.SchemaObject, propertyNa
     const randomInt = faker.number.int({ min, max });
     const arr = [];
     for (let i = 0; i < randomInt; i++) {
-      arr.push(getValueForProperty(property.items, propertyName));
+      arr.push(getValueForProperty(property.items as OpenAPIV3.SchemaObject, propertyName));
     }
     return "[" + arr + "]";
   }
@@ -64,7 +64,7 @@ export function getValueForProperty(property: OpenAPIV3.SchemaObject, propertyNa
     return property.example;
   }
 
-  return getRandomStringNumberOrBool(property.type, propertyName);
+  return getRandomStringNumberOrBool(property.type || 'string', propertyName);
 }
 
 export function getRandomStringNumberOrBool(type: string, propertyName?: string): string | number | boolean | null {
