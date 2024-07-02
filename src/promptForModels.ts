@@ -33,10 +33,10 @@ export function getModelChoicesFromSchemas(schemas: Record<string, OpenAPIV3.Sch
       console.log(`schema ${name} option disabled since it is named in schema ignnore list`);
       modelChoices.push({ name, value: name, checked: false });
     } else if (schemas[name].type !== "object") {
-      // TODO: handle "anyOf" etc.
       console.log(`excluding schema ${name} since it is not of type "object"`);
+      modelChoices.push({ name, value: name, checked: false });
     } else {
-      modelChoices.push({ name, value: name });
+      modelChoices.push({ name, value: name, checked: true });
     }
   }
 

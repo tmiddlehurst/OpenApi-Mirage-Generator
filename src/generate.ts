@@ -16,11 +16,10 @@ export async function generate(inputFilePath: string, outputDir: string, prompt:
   if (!inputFilePath && typeof inputFilePath !== "string") {
     console.error("Invalid input file path provided");
   }
-  if (!outputDir && typeof outputDir !== "string") {
-    // TODO: test outputdir is real path
-    console.error("Invalid output dir path provided");
-  }
   try {
+    if (!outputDir || typeof outputDir !== "string") {
+      console.error("Invalid output dir path provided");
+    }
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
     }
@@ -54,8 +53,8 @@ export async function generate(inputFilePath: string, outputDir: string, prompt:
     }
   }
 
-
   const routeHandlerConfig = getHandlersFromPaths(spec.paths);
+
   if (routeHandlerConfig.length) {
     const pathToHandlers = path.join(outputDir, 'handlers');
     if (!fs.existsSync(pathToHandlers)) {

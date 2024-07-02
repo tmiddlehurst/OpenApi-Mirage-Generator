@@ -1,5 +1,1 @@
-Handle allOf etc.
-
-Handle $refs by replacing with model where necessary
-
-- looks like body generation is not working for handlers
+If mirage directory already exists in project, inject config into current config

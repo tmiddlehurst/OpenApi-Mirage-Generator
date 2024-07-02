@@ -1,5 +1,5 @@
 import type { OpenAPIV3 } from 'openapi-types';
-import { getObjectProperties, getRandomStringNumberOrBool, getValueForProperty } from '../src/getExampleValue';
+import { exampleObjectFromSchema, getRandomStringNumberOrBool, getExampleValue } from '../src/getExampleValue';
 import { test, describe, expect } from 'bun:test';
 
 describe('Getting field values', () => {
@@ -29,7 +29,7 @@ describe('Getting field values', () => {
       ]
     };
 
-    expect(getValueForProperty(property, propertyName)).toBe('\"Put\"');
+    expect(getExampleValue(property, propertyName)).toBe('\"Put\"');
   });
 
   test('gets value for string property with example', () => {
@@ -39,7 +39,7 @@ describe('Getting field values', () => {
       "example": "202405220923260000235870D"
     };
 
-    expect(getValueForProperty(property, propertyName)).toBe('\"202405220923260000235870D\"');
+    expect(getExampleValue(property, propertyName)).toBe('\"202405220923260000235870D\"');
   });
 
   test('gets value for number property with example', () => {
@@ -48,7 +48,7 @@ describe('Getting field values', () => {
       "type": "number",
       "example": 20240524
     };
-    expect(getValueForProperty(property, propertyName)).toBe(20240524);
+    expect(getExampleValue(property, propertyName)).toBe(20240524);
   });
 
   test('gets value for integer property with example', () => {
@@ -58,7 +58,7 @@ describe('Getting field values', () => {
       "example": 20240524
     };
 
-    expect(getValueForProperty(property, propertyName)).toBe(20240524);
+    expect(getExampleValue(property, propertyName)).toBe(20240524);
   });
 
   test('gets value for array property of type string with example', () => {
@@ -74,7 +74,7 @@ describe('Getting field values', () => {
       ]
     };
 
-    expect(getValueForProperty(property, propertyName)).toBe('[\"Buy Groceries\", \"Buy Coffee\", ]');
+    expect(getExampleValue(property, propertyName)).toBe('[\"Buy Groceries\", \"Buy Coffee\", ]');
   });
 
   test('gets value for string property', () => {
@@ -83,7 +83,7 @@ describe('Getting field values', () => {
       "type": "string",
     };
 
-    expect(typeof getValueForProperty(property, propertyName)).toBe("string");
+    expect(typeof getExampleValue(property, propertyName)).toBe("string");
   });
 
   test('gets value for integer property', () => {
@@ -92,7 +92,7 @@ describe('Getting field values', () => {
       "type": "integer",
     };
 
-    expect(typeof getValueForProperty(property, propertyName)).toBe("number");
+    expect(typeof getExampleValue(property, propertyName)).toBe("number");
   });
 
   test('gets value for number property', () => {
@@ -101,7 +101,7 @@ describe('Getting field values', () => {
       "type": "number",
     };
 
-    expect(typeof getValueForProperty(property, propertyName)).toBe("number");
+    expect(typeof getExampleValue(property, propertyName)).toBe("number");
   });
 
   test('gets value for boolean property', () => {
@@ -110,7 +110,7 @@ describe('Getting field values', () => {
       "type": "boolean",
     };
 
-    expect(typeof getValueForProperty(property, propertyName)).toBe("boolean");
+    expect(typeof getExampleValue(property, propertyName)).toBe("boolean");
   });
 
   test('gets value for array of strings', () => {
@@ -121,16 +121,33 @@ describe('Getting field values', () => {
         type: "string",
       }
     };
-    const res = getValueForProperty(property, propertyName);
+    const res = getExampleValue(property, propertyName);
 
     expect(res).toMatch(/^\["[^"]*"(,"[^"]*"){0,4}\]$/g);
   });
 
-  test('get values for schema which has oneOf', () => { });
-  test('get values for schema which has anyOf', () => { });
-  test('get values for schema which has allOf', () => { });
+  test('get values for schema which has oneOf', () => {
+    const example = require('./test-specs/schemas/withOneOf.json');
+    const output = getExampleValue(example);
 
-  test('getObjectProperties gets example values for shallow object', () => {
+    expect(output).toMatch(/\{ age:[0-9]*,nickname:\"[^"]*\" \}/);
+  });
+
+  test('get values for schema which has anyOf', () => {
+    const example = require('./test-specs/schemas/withAnyOf.json');
+    const output = getExampleValue(example);
+
+    expect(output).toMatch(/\{ age:[0-9]*,nickname:\"[^"]*\" \}/);
+  });
+
+  test('get values for schema which has allOf', () => {
+    const example = require('./test-specs/schemas/withAllOf.json');
+    const output = getExampleValue(example);
+
+    expect(output).toMatch(/\{ age:[0-9]*,nickname:\"[^"]*\",pet_type:\"Cat\",hunts:true \}/);
+  });
+
+  test('exampleObjectFromSchema gets example values for shallow object', () => {
     const propertyName = 'NestedProp';
     const property: OpenAPIV3.SchemaObject = {
       type: "object",
@@ -143,20 +160,20 @@ describe('Getting field values', () => {
         }
       }
     };
-    const res = getObjectProperties(property, propertyName);
+    const res = exampleObjectFromSchema(property, propertyName);
 
     expect(res).toMatch(/{\s+name:\"[A-z-.,\s]*\",age:[0-9]*\s+}/);
   });
 
-  test('getObjectProperties for 200 response', () => {
+  test('exampleObjectFromSchema for 200 response', () => {
     const exampleResponse = require('./test-specs/responses/200-with-headers-and-content.json');
-    const res = getValueForProperty(exampleResponse.content["application/json"].schema, '200-test');
+    const res = getExampleValue(exampleResponse.content["application/json"].schema, '200-test');
 
     expect(typeof res).toEqual('string');
     expect(res.length).toBeGreaterThan(0);
   });
 
-  test('getObjectProperties gets example values for nested object', () => {
+  test('exampleObjectFromSchema gets example values for nested object', () => {
     const propertyName = 'NestedProp';
     const property: OpenAPIV3.SchemaObject = {
       type: "object",
@@ -179,7 +196,7 @@ describe('Getting field values', () => {
         }
       }
     };
-    const res = getObjectProperties(property, propertyName);
+    const res = exampleObjectFromSchema(property, propertyName);
 
     expect(res).toMatch(/{ level1:{ level2:{ name:\"[A-z-.,\s]*\",age:[0-9]*\s+}\s+}\s+}/);
   });

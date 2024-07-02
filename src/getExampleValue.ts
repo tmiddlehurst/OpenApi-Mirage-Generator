@@ -1,70 +1,69 @@
 import { faker } from '@faker-js/faker';
 import type { OpenAPIV3 } from 'openapi-types';
 
-export function getObjectProperties(object: OpenAPIV3.SchemaObject, objectName?: string): string {
+export function exampleObjectFromSchema(object: OpenAPIV3.SchemaObject, objectName?: string): string {
   console.log('getting values for properties of: ', objectName);
   const propertyNames = Object.keys(object.properties);
-  return `{ ${propertyNames.reduce((props, propertyName, i) => {
+  const keyValPairs: string = propertyNames.reduce((props, key, i) => {
     const commaIfNotLastItem = i === propertyNames.length - 1 ? '' : ',';
-    return props + `${propertyName}:${getValueForProperty(object.properties[propertyName], propertyName)}${commaIfNotLastItem}`;
-  }, '')
-    }
-  } `;
+    const value = getExampleValue(object.properties[key], key);
+    return `${props}${key}:${value}${commaIfNotLastItem}`;
+  }, '');
+
+  return `{ ${keyValPairs} }`;
 }
 
-// TODO: return these as optional if a "required" array is present and the prop is not in it? Maybe only relevant to typescript
-
-// TODO: should this return real values, e.g bool, string, array, object, then they are stringified in getObjectProperties()?
-export function getValueForProperty(property: OpenAPIV3.SchemaObject, propertyName?: string): any {
-  // TODO: handle ref here
-
-  if (propertyName) {
-    console.log(`Property ${propertyName} is of type ${property.type
+export function getExampleValue(schema: OpenAPIV3.SchemaObject, schemaName?: string): any {
+  if (schemaName) {
+    console.log(`Property ${schemaName} is of type ${schema.type
       } `);
   }
 
-  if (property.oneOf || property.anyOf) {
-    // return object compliant with the first object in the list
+  if (schema.anyOf) {
+    return exampleObjectFromSchema(schema.anyOf[0], schemaName);
   }
-  if (property.allOf) {
-    // merge all objects in list and return an example object which complies with this
+  if (schema.oneOf) {
+    return exampleObjectFromSchema(schema.oneOf[0], schemaName);
   }
-  if (property.type === 'array') {
-    if (property.example) {
-      if (property.items.type === "string") {
-        return "[" + property.example.reduce((acc: string, item: string) => acc + `"${item}", `, '') + "]";
+  if (schema.allOf) {
+    return exampleObjectFromSchema(mergeSchemas(schema.allOf));
+  }
+  if (schema.type === 'array') {
+    if (schema.example) {
+      if (schema.items.type === "string") {
+        return "[" + schema.example.reduce((acc: string, item: string) => acc + `"${item}", `, '') + "]";
       }
-      return "[" + property.example + "]";
+      return "[" + schema.example + "]";
     }
-    const max = property.maxItems || 5;
-    const min = property.minItems || 1;
+    const max = schema.maxItems || 5;
+    const min = schema.minItems || 1;
     const randomInt = faker.number.int({ min, max });
     const arr = [];
     for (let i = 0; i < randomInt; i++) {
-      arr.push(getValueForProperty(property.items as OpenAPIV3.SchemaObject, propertyName));
+      arr.push(getExampleValue(schema.items as OpenAPIV3.SchemaObject, schemaName));
     }
     return "[" + arr + "]";
   }
-  if (property.type === 'object') {
-    return getObjectProperties(property, propertyName);
+  if (schema.type === 'object') {
+    return exampleObjectFromSchema(schema, schemaName);
   }
-  if (property.type === 'string') {
-    if (property.enum) {
-      return `"${property.enum[0]}"`;
+  if (schema.type === 'string') {
+    if (schema.enum) {
+      return `"${schema.enum[0]}"`;
     }
   }
-  if (property.enum) {
-    return property.enum[0];
+  if (schema.enum) {
+    return schema.enum[0];
   }
-  if (property.example) {
+  if (schema.example) {
     // string example values must be explicitly wrapped in quotes when added to the file template
-    if (typeof property.example === 'string') {
-      return `"${property.example}"`;
+    if (typeof schema.example === 'string') {
+      return `"${schema.example}"`;
     }
-    return property.example;
+    return schema.example;
   }
 
-  return getRandomStringNumberOrBool(property.type || 'string', propertyName);
+  return getRandomStringNumberOrBool(schema.type || 'string', schemaName);
 }
 
 export function getRandomStringNumberOrBool(type: string, propertyName?: string): string | number | boolean | null {
@@ -96,4 +95,10 @@ export function getRandomStringNumberOrBool(type: string, propertyName?: string)
     return faker.number.int();
   }
   return null;
+}
+
+function mergeSchemas(schemas: OpenAPIV3.SchemaObject[]): OpenAPIV3.BaseSchemaObject {
+  return {
+    properties: Object.assign(...(schemas.map(s => s.properties)))
+  };
 }

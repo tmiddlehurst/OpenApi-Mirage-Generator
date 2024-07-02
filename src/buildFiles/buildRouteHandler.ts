@@ -1,6 +1,6 @@
 import { OpenAPIV3 } from 'openapi-types';
 import _ from 'lodash';
-import { getValueForProperty } from '../getExampleValue';
+import { getExampleValue } from '../getExampleValue';
 
 export function buildRouteHandler(operationObject: OpenAPIV3.OperationObject, name?: string): string {
   let headers = '{ }';
@@ -29,8 +29,8 @@ export function buildRouteHandler(operationObject: OpenAPIV3.OperationObject, na
 export function getBody(response: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject): string {
   let body: string = '';
   if (response.content && response.content["application/json"]) {
-    console.log('getting body, calling getValueForProperty() with ', response.content["application/json"].schema);
-    return getValueForProperty(response.content["application/json"].schema);
+    console.log('getting body, calling getExampleValue() with ', response.content["application/json"].schema);
+    return getExampleValue(response.content["application/json"].schema);
   }
   return `{ ${body} }`;
 }
