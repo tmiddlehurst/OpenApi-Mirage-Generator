@@ -1,4 +1,4 @@
-import { buildModelDefinitionsFile } from '../src/buildFiles/buildModelDefinitions';
+import buildModelDefinitionsFile from '../src/buildFile/buildModelDefinitions';
 import { describe, test, expect } from 'bun:test';
 import { format } from '../src/utils';
 

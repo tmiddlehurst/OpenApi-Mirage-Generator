@@ -1,4 +1,4 @@
-import { buildFactoryDefinitionsFile } from '../src/buildFiles/buildFactoryDefinitions';
+import buildFactoryDefinitionsFile from '../src/buildFile/buildFactoryDefinitions';
 import { describe, test, expect } from 'bun:test';
 import { format } from '../src/utils';
 

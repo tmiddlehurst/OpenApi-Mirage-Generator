@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'bun:test';
-import { buildRouteHandler, getBody, getHeaders } from '../src/buildFiles/buildRouteHandler';
+import buildRouteHandler, { getBody, getHeaders } from '../src/buildFile/buildRouteHandler';
 import { format } from '../src/utils';
 
 const exampleRouteHandler = `

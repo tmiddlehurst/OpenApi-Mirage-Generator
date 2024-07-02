@@ -6,7 +6,7 @@ const SCHEMA_NAMES_IGNORE_LIST: string[] = [
   "ERROR", "SORT", "PAGEABLE"
 ];
 
-export async function inquireModelsToCreate(prompt: PromptFunction, schemas: Record<string, OpenAPIV3.SchemaObject>): Promise<Record<string, any>> {
+export default async function promptUserForModels(prompt: PromptFunction, schemas: Record<string, OpenAPIV3.SchemaObject>): Promise<Record<string, any>> {
   const choices: CheckboxChoiceOptions[] = getModelChoicesFromSchemas(schemas);
   const displayOptions = [];
 

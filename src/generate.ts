@@ -1,18 +1,18 @@
 import fs from 'fs';
 import path from 'node:path';
 import { OpenAPIV3 } from 'openapi-types';
-import { inquireModelsToCreate } from './promptForModels';
-import { buildServerFile } from './buildFiles/buildServer';
+import promptUserForModels from './promptUserForModels';
+import buildServerFile from './buildFile/buildServer';
 import { type PromptFunction } from 'inquirer';
 import { importFile, writeFile, type FileToWrite } from './utils';
-import { buildModelDefinitionsFile } from './buildFiles/buildModelDefinitions';
-import { buildFactoryDefinitionsFile } from './buildFiles/buildFactoryDefinitions';
-import { buildFactoryFile } from './buildFiles/buildFactory';
-import { getHandlersFromPaths, type HandlerConfig } from './getRouteHandlerConfig';
-import { buildRouteHandler } from './buildFiles/buildRouteHandler';
-import { resolveRefs } from './resolveRefs';
+import buildModelDefinitionsFile from './buildFile/buildModelDefinitions';
+import buildFactoryDefinitionsFile from './buildFile/buildFactoryDefinitions';
+import buildFactoryFile from './buildFile/buildFactory';
+import buildRouteHandler from './buildFile/buildRouteHandler';
+import getHandlersFromPaths, { type HandlerConfig } from './getRouteHandlerConfig';
+import resolveRefs from './resolveRefs';
 
-export async function generate(inputFilePath: string, outputDir: string, prompt: PromptFunction) {
+export default async function generate(inputFilePath: string, outputDir: string, prompt: PromptFunction) {
   if (!inputFilePath && typeof inputFilePath !== "string") {
     console.error("Invalid input file path provided");
   }
@@ -38,7 +38,7 @@ export async function generate(inputFilePath: string, outputDir: string, prompt:
   }
 
   if (spec?.components?.schemas && Object.keys(spec.components.schemas).length) {
-    const { models } = await inquireModelsToCreate(prompt, spec.components.schemas as Record<string, OpenAPIV3.SchemaObject>);
+    const { models } = await promptUserForModels(prompt, spec.components.schemas as Record<string, OpenAPIV3.SchemaObject>);
 
     if (models.length) {
       const pathToFactories = path.join(outputDir, 'factories');

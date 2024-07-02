@@ -1,6 +1,6 @@
 import camelcase from 'camelcase';
 
-export function buildFactoryDefinitionsFile(modelNames: string[]): string {
+export default function buildFactoryDefinitionsFile(modelNames: string[]): string {
   const factoryDefinitions: string = modelNames.reduce((definitions, modelName) => {
     return definitions + `${camelcase(modelName)}: ${modelName}Factory,`;
   }, '');

@@ -1,5 +1,5 @@
 import { expect, test, describe } from "bun:test";
-import { getModelChoicesFromSchemas } from '../src/promptForModels';
+import { getModelChoicesFromSchemas } from '../src/promptUserForModels';
 
 describe("Prompting member to choose models to define", () => {
 

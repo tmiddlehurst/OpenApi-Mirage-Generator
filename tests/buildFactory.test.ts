@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'bun:test';
-import { buildFactoryFile } from '../src/buildFiles/buildFactory';
+import buildFactoryFile from '../src/buildFile/buildFactory';
 import prettier from 'prettier';
 
 const exampleFactory = "import { Factory } from 'miragejs';\n\nexport default Factory.extend({\n  valid: true,\n  modifiedDate: '2025-08-15T01:36:34.749Z',\n  nameOnCard: 'Thomas Middlehurst',\n  totalAmountDeposited: 1000,\n  scheme: 'VISA',\n  transactions: ['Buy Groceries', 'Buy Coffee']\n});\n";

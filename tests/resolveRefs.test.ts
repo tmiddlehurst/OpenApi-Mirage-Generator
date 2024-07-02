@@ -1,4 +1,4 @@
-import { getWithNestedPath, resolveRefs } from '../src/resolveRefs';
+import resolveRefs, { getWithNestedPath } from '../src/resolveRefs';
 import { test, describe, expect } from 'bun:test';
 
 const shallowRefs = require('./test-specs/resolving-refs/shallow-refs.json');

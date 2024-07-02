@@ -1,6 +1,6 @@
 import camelcase from 'camelcase';
 
-export function buildModelDefinitionsFile(modelNames: string[]): string {
+export default function buildModelDefinitionsFile(modelNames: string[]): string {
   const modelDefinitions: string = modelNames.reduce((definitions, modelName) => {
     return definitions + `
       const ${modelName}Model = <ModelDefinition>Model.extend({});`;

@@ -1,6 +1,6 @@
 import type { HandlerConfig } from '../getRouteHandlerConfig';
 
-export function buildServerFile(handlers: HandlerConfig[]): string {
+export default function buildServerFile(handlers: HandlerConfig[]): string {
   let handlerImports = '';
   let routes = '';
 

@@ -54,7 +54,7 @@ export function getWithNestedPath(object: Record<string, any>, pathSegments: str
   return object;
 }
 
-export function resolveRefs(doc: OpenAPIV3.Document): OpenAPIV3.Document {
+export default function resolveRefs(doc: OpenAPIV3.Document): OpenAPIV3.Document {
   const refs = recursiveReplace(doc);
   doc = refs === 0 ? doc : resolveRefs(doc);
   return doc;

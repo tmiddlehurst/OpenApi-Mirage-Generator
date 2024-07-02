@@ -17,9 +17,6 @@ export type FileToWrite = {
 };
 
 export async function writeFile(fileToWrite: FileToWrite, outputDir: string): Promise<void> {
-  if (!fs.existsSync('factories')) {
-    console.log('factories does not exist');
-  }
   const formattedFile = await format(fileToWrite.content);
   return fs.writeFileSync(path.join(outputDir, fileToWrite.fileName), formattedFile);
 }

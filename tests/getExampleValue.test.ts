@@ -1,19 +1,19 @@
 import type { OpenAPIV3 } from 'openapi-types';
-import { exampleObjectFromSchema, getRandomStringNumberOrBool, getExampleValue } from '../src/getExampleValue';
+import getExampleValue, { exampleObjectFromSchema, examplePrimitive } from '../src/getExampleValue';
 import { test, describe, expect } from 'bun:test';
 
 describe('Getting field values', () => {
 
   test('gets example primitive value for a field', () => {
-    expect(typeof getRandomStringNumberOrBool('number', 'total')).toBe('number');
-    expect(typeof getRandomStringNumberOrBool('number', 'timestamp')).toBe('number');
-    expect(typeof getRandomStringNumberOrBool('string', 'date')).toBe('string');
-    expect(typeof getRandomStringNumberOrBool('string', 'country')).toBe('string');
-    expect(typeof getRandomStringNumberOrBool('string', 'foo')).toBe('string');
-    expect(typeof getRandomStringNumberOrBool('string', 'name')).toBe('string');
-    expect(typeof getRandomStringNumberOrBool('number', 'bar')).toBe('number');
-    expect(typeof getRandomStringNumberOrBool('boolean', 'baz')).toBe('boolean');
-    expect(getRandomStringNumberOrBool('string', 'startDate')).toMatch(/^\"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\"$/);
+    expect(typeof examplePrimitive('number', 'total')).toBe('number');
+    expect(typeof examplePrimitive('number', 'timestamp')).toBe('number');
+    expect(typeof examplePrimitive('string', 'date')).toBe('string');
+    expect(typeof examplePrimitive('string', 'country')).toBe('string');
+    expect(typeof examplePrimitive('string', 'foo')).toBe('string');
+    expect(typeof examplePrimitive('string', 'name')).toBe('string');
+    expect(typeof examplePrimitive('number', 'bar')).toBe('number');
+    expect(typeof examplePrimitive('boolean', 'baz')).toBe('boolean');
+    expect(examplePrimitive('string', 'startDate')).toMatch(/^\"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\"$/);
   });
 
   test('gets value for string enum property', () => {

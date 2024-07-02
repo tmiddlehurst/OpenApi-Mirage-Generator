@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { buildServerFile } from '../src/buildFiles/buildServer';
+import buildServerFile from '../src/buildFile/buildServer';
 import { format } from '../src/utils';
 
 const exampleServer = `

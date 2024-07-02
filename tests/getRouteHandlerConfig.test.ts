@@ -1,6 +1,6 @@
 import { expect, test, describe } from 'bun:test';
 import type { OpenAPIV3 } from 'openapi-types';
-import { getHandlerName, getHandlersFromPaths, type HandlerConfig } from '../src/getRouteHandlerConfig';
+import getHandlersFromPaths, { getHandlerName, type HandlerConfig } from '../src/getRouteHandlerConfig';
 
 describe('Gets config for route handlers', () => {
 

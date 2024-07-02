@@ -1,8 +1,8 @@
 import { OpenAPIV3 } from 'openapi-types';
 import _ from 'lodash';
-import { getExampleValue } from '../getExampleValue';
+import getExampleValue from '../getExampleValue';
 
-export function buildRouteHandler(operationObject: OpenAPIV3.OperationObject, name?: string): string {
+export default function buildRouteHandler(operationObject: OpenAPIV3.OperationObject, name?: string): string {
   let headers = '{ }';
   let body = '{ }';
   const first2xxResponse: string | undefined = Object.keys(operationObject.responses).find((key: string) => key.startsWith('20'));
