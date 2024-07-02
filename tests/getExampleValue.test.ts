@@ -201,4 +201,28 @@ describe('Getting field values', () => {
     expect(res).toMatch(/{ level1:{ level2:{ name:\"[A-z-.,\s]*\",age:[0-9]*\s+}\s+}\s+}/);
   });
 
+  test('exampleObjectFromSchema builds an example string:string dictionary when properties and additionalProperties are present', () => {
+    const example = require('./test-specs/schemas/additionalPropertiesStringValues.json');
+
+    expect(getExampleValue(example)).toMatch(/\{ message:\"[^"]*\",context:\{ additionalProperty1:\"[^"]*\" \} \}/);
+  });
+
+  test('exampleObjectFromSchema builds an example string:string dictionary when only additionalProperties are present', () => {
+    const example = require('./test-specs/schemas/onlyAdditionalPropertiesStringValues.json');
+
+    expect(getExampleValue(example)).toMatch(/\{ additionalProperty1:\"[^"]*\" \}/);
+  });
+
+  test('exampleObjectFromSchema builds an example string:integer dictionary when additionalProperties are present', () => {
+    const example = require('./test-specs/schemas/additionalPropertiesIntegerValues.json');
+
+    expect(getExampleValue(example)).toMatch(/\{ message:\"[^"]*\",context:\{ additionalProperty1:[0-9]* \} \}/);
+  });
+
+  test('exampleObjectFromSchema builds an example string:object dictionary when additionalProperties are present', () => {
+    const example = require('./test-specs/schemas/additionalPropertiesObjectValues.json');
+
+    expect(getExampleValue(example)).toMatch(/\{ message:\"[^"]*\",context:\{ additionalProperty1:\{ title:\"[^"]*\",description:\"[^"]*\" \} \} \}/);
+  });
+
 });

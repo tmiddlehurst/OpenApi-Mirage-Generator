@@ -40,12 +40,20 @@ export default function getExampleValue(schema: OpenAPIV3.SchemaObject, schemaNa
 
 export function exampleObjectFromSchema(schema: OpenAPIV3.SchemaObject, schemaName?: string): string {
   console.log('getting values for properties of: ', schemaName);
-  const propertyNames = Object.keys(schema.properties);
-  const keyValPairs: string = propertyNames.reduce((props, key, i) => {
-    const commaIfNotLastItem = i === propertyNames.length - 1 ? '' : ',';
-    const value = getExampleValue(schema.properties[key], key);
-    return `${props}${key}:${value}${commaIfNotLastItem}`;
-  }, '');
+  let keyValPairs = '';
+
+  if (schema.properties) {
+    const propertyNames = Object.keys(schema.properties);
+    keyValPairs += propertyNames.reduce((props, key, i) => {
+      const commaIfNotLastItem = i === propertyNames.length - 1 ? '' : ',';
+      const value = getExampleValue(schema.properties[key], key);
+      return `${props}${key}:${value}${commaIfNotLastItem}`;
+    }, '');
+  }
+  if (schema.additionalProperties) {
+    const commaIfNotFirst = keyValPairs.length ? ',' : '';
+    keyValPairs += `${commaIfNotFirst}additionalProperty1:${getExampleValue(schema.additionalProperties)}`;
+  }
 
   return `{ ${keyValPairs} }`;
 }
@@ -53,9 +61,10 @@ export function exampleObjectFromSchema(schema: OpenAPIV3.SchemaObject, schemaNa
 function exampleArrayFromSchema(schema: OpenAPIV3.SchemaObject, schemaName?: string): string {
   if (schema.example) {
     if (schema.items.type === "string") {
-      return "[" + schema.example.reduce((acc: string, item: string) => acc + `"${item}", `, '') + "]";
+      const safeStrings = schema.example.reduce((acc: string, item: string) => acc + `"${item}", `, '');
+      return `[${safeStrings}]`;
     }
-    return "[" + schema.example + "]";
+    return `[${schema.example}]`;
   }
   const max = schema.maxItems || 5;
   const min = schema.minItems || 1;
