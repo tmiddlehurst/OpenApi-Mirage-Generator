@@ -96,8 +96,7 @@ export function examplePrimitive(type: string, propertyName?: string): string | 
     return true;
   }
   if (type === 'string') {
-    console.log('returning random noun for property', propertyName);
-    return `"${faker.word.noun()}"`;
+    return `"string"`;
   }
   if (['number', 'integer'].includes(type)) {
     return faker.number.int();
