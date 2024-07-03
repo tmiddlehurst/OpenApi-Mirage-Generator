@@ -15,7 +15,7 @@ function recursiveReplace(baseObject: Record<string, any>, current?: Record<stri
         recursiveReplace(baseObject, current[key]);
       } else {
         if (current[key][0] && typeof current[key][0] === 'object') {
-          current[key].forEach(element => recursiveReplace(baseObject, element));
+          current[key].forEach((element: Record<string, any>) => recursiveReplace(baseObject, element));
         }
       }
     } else {

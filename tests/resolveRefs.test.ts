@@ -101,6 +101,7 @@ describe('resolving $refs in document', () => {
 
   test('resolves refs which are in an array', () => {
     const input = require('./test-specs/resolving-refs/refs-in-array.json');
+    // @ts-ignore
     expect(resolveRefs(input).paths["/pets"].patch.requestBody.content["application/json"]).toEqual(JSON.parse(`
       {
         "schema": {

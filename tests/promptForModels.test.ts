@@ -1,5 +1,6 @@
 import { expect, test, describe } from "bun:test";
 import { getModelChoicesFromSchemas } from '../src/promptUserForModels';
+import { OpenAPIV3 } from 'openapi-types';
 
 describe("Prompting member to choose models to define", () => {
 
@@ -17,7 +18,7 @@ describe("Prompting member to choose models to define", () => {
           adminUserLoginName: "string",
         }
       }
-    };
+    } as Record<string, OpenAPIV3.SchemaObject>;
 
     const filteredSchemas = getModelChoicesFromSchemas(schemas);
     console.log(filteredSchemas);
@@ -44,7 +45,7 @@ describe("Prompting member to choose models to define", () => {
           code: "string",
         }
       }
-    };
+    } as Record<string, OpenAPIV3.SchemaObject>;
 
     const filteredSchemas = getModelChoicesFromSchemas(schemas);
     console.log(filteredSchemas);
@@ -72,7 +73,7 @@ describe("Prompting member to choose models to define", () => {
           pageNumber: "integer",
         }
       }
-    };
+    } as Record<string, OpenAPIV3.SchemaObject>;
 
     const filteredSchemas = getModelChoicesFromSchemas(schemas);
     console.log(filteredSchemas);

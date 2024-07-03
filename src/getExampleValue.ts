@@ -6,13 +6,13 @@ export default function getExampleValue(schema: OpenAPIV3.SchemaObject, schemaNa
     console.log(`Property ${schemaName} is of type ${schema.type} `);
   }
   if (schema.anyOf) {
-    return exampleObjectFromSchema(schema.anyOf[0], schemaName);
+    return exampleObjectFromSchema(schema.anyOf[0] as OpenAPIV3.SchemaObject, schemaName);
   }
   if (schema.oneOf) {
-    return exampleObjectFromSchema(schema.oneOf[0], schemaName);
+    return exampleObjectFromSchema(schema.oneOf[0] as OpenAPIV3.SchemaObject, schemaName);
   }
   if (schema.allOf) {
-    return exampleObjectFromSchema(mergeSchemas(schema.allOf));
+    return exampleObjectFromSchema(mergeSchemas(schema.allOf as OpenAPIV3.SchemaObject[]));
   }
   if (schema.type === 'array') {
     return exampleArrayFromSchema(schema, schemaName);
@@ -42,24 +42,26 @@ export function exampleObjectFromSchema(schema: OpenAPIV3.SchemaObject, schemaNa
   console.log('getting values for properties of: ', schemaName);
   let keyValPairs = '';
 
-  if (schema.properties) {
+  if (schema.properties !== undefined) {
     const propertyNames = Object.keys(schema.properties);
     keyValPairs += propertyNames.reduce((props, key, i) => {
       const commaIfNotLastItem = i === propertyNames.length - 1 ? '' : ',';
-      const value = getExampleValue(schema.properties[key], key);
+      // @ts-expect-error we check for undefined
+      const value = getExampleValue(schema.properties[key] as OpenAPIV3.SchemaObject, key);
       return `${props}${key}:${value}${commaIfNotLastItem}`;
     }, '');
   }
   if (schema.additionalProperties) {
     const commaIfNotFirst = keyValPairs.length ? ',' : '';
-    keyValPairs += `${commaIfNotFirst}additionalProperty1:${getExampleValue(schema.additionalProperties)}`;
+    keyValPairs += `${commaIfNotFirst}additionalProperty1:${getExampleValue(schema.additionalProperties as OpenAPIV3.SchemaObject)}`;
   }
 
   return `{ ${keyValPairs} }`;
 }
 
-function exampleArrayFromSchema(schema: OpenAPIV3.SchemaObject, schemaName?: string): string {
+function exampleArrayFromSchema(schema: OpenAPIV3.ArraySchemaObject | OpenAPIV3.ArraySchemaObject, schemaName?: string): string {
   if (schema.example) {
+    // @ts-expect-error references have been removed
     if (schema.items.type === "string") {
       const safeStrings = schema.example.reduce((acc: string, item: string) => acc + `"${item}", `, '');
       return `[${safeStrings}]`;
@@ -105,7 +107,8 @@ export function examplePrimitive(type: string, propertyName?: string): string | 
 }
 
 function mergeSchemas(schemas: OpenAPIV3.SchemaObject[]): OpenAPIV3.BaseSchemaObject {
+  const mergedProperties = schemas.map(s => s.properties);
   return {
-    properties: Object.assign(...(schemas.map(s => s.properties)))
+    properties: Object.assign({}, ...mergedProperties)
   };
 }

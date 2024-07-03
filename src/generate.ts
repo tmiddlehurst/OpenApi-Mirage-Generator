@@ -48,6 +48,7 @@ export default async function generate(inputFilePath: string, outputDir: string,
       filesToWrite.push({ fileName: 'models.ts', content: buildModelDefinitionsFile(models) });
       filesToWrite.push({ fileName: 'factories.ts', content: buildFactoryDefinitionsFile(models) });
       models.forEach((modelName: string) => {
+        // @ts-expect-error we have checked for presence of spec.components.schemas
         filesToWrite.push({ fileName: `factories/${modelName}.ts`, content: buildFactoryFile(modelName, spec.components?.schemas[modelName] as OpenAPIV3.SchemaObject) });
       });
     }
@@ -61,6 +62,7 @@ export default async function generate(inputFilePath: string, outputDir: string,
       fs.mkdirSync(pathToHandlers);
     }
     routeHandlerConfig.forEach((handler: HandlerConfig) => {
+      // @ts-expect-error trust that buildRouteHandler returns correct path and methods
       filesToWrite.push({ fileName: `handlers/${handler.name}.ts`, content: buildRouteHandler(spec.paths[handler.path][handler.method], handler.name) });
     });
   }
