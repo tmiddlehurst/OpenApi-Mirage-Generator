@@ -12,7 +12,7 @@ import buildRouteHandler from './buildFile/buildRouteHandler';
 import getHandlersFromPaths, { type HandlerConfig } from './getRouteHandlerConfig';
 import resolveRefs from './resolveRefs';
 
-export default async function generate(inputFilePath: string, outputDir: string, prompt: PromptFunction) {
+export default async function generate(inputFilePath: string, outputDir: string, prompt: PromptFunction, cleanup: () => void) {
   if (!inputFilePath && typeof inputFilePath !== "string") {
     console.error("Invalid input file path provided");
   }
@@ -73,5 +73,6 @@ export default async function generate(inputFilePath: string, outputDir: string,
     console.log('writing file: ', fileToWrite.fileName);
     writeFile(fileToWrite, outputDir);
   }
+  cleanup();
 
 }

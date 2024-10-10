@@ -1,13 +1,27 @@
 import inquirer from 'inquirer';
 import generate from './src/generate';
 import { exec } from 'child_process';
+import fs from 'fs';
 
-const bundleStep = exec(`npx redocly bundle ${Bun.argv[2]} --output ./bundled-input.yml`);
+const TMP_BUNDLE_NAME = '_temp-bundled-input.yml';
+
+function cleanup() {
+  console.log('Running cleanup');
+  fs.unlink(`./${TMP_BUNDLE_NAME}`, (err) => {
+    if (err) {
+      throw err;
+    } else {
+      console.log('Cleanup successful');
+    }
+  });
+}
+
+const bundleStep = exec(`npx redocly bundle ${Bun.argv[2]} --output ./${TMP_BUNDLE_NAME}`);
 bundleStep.on('exit', (code: number, signal) => {
   if (code === 0) {
-    console.log('Successfully bundled input spec into ./bundled-input.yml');
-    generate('./bundled-input.yml', Bun.argv[3], inquirer.prompt);
+    console.log(`Successfully bundled input spec into ./${TMP_BUNDLE_NAME}`);
+    generate(TMP_BUNDLE_NAME, Bun.argv[3], inquirer.prompt, cleanup);
   } else {
-    console.error(`Unable to bundle input spec. Exit code: ${code}. Signal: ${signal}`);
+    console.error(`Bundling with \`redocly bundle\` failed. Check that path $refs to files are valid and try again.\nSignal: ${signal}`);
   }
 });
