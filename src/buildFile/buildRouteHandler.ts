@@ -29,7 +29,6 @@ export default function buildRouteHandler(operationObject: OpenAPIV3.OperationOb
 export function getBody(response: OpenAPIV3.ResponseObject): string {
   let body: string = '';
   if (response.content && response.content["application/json"]) {
-    console.log('getting body, calling getExampleValue() with ', response.content["application/json"].schema);
     return getExampleValue(response.content["application/json"].schema as OpenAPIV3.SchemaObject);
   }
   return `{ ${body} }`;
@@ -37,7 +36,6 @@ export function getBody(response: OpenAPIV3.ResponseObject): string {
 
 export function getHeaders(response: OpenAPIV3.ResponseObject): string {
   let headers: string = '';
-  console.log('RESPONSE: ', response);
   if (response.headers) {
     for (const headerName in response.headers) {
       // @ts-expect-error references have been removed

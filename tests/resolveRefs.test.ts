@@ -142,4 +142,6 @@ describe('resolving $refs in document', () => {
         }
       }`));
   });
+
+  // test('what happens if there are circular refs?', () => { });
 });

@@ -27,13 +27,13 @@ export function getModelChoicesFromSchemas(schemas: Record<string, OpenAPIV3.Sch
 
   for (const name of schemaNames) {
     if (isPluralOfOtherSchema(name, schemaNames)) {
-      console.log(`schema ${name} disabled since it is plural of other named schema`);
+      console.debug(`Schema ${name} disabled since it is plural of other named schema`);
       modelChoices.push({ name, value: name, checked: false });
     } else if (SCHEMA_NAMES_IGNORE_LIST.includes(name.toUpperCase())) {
-      console.log(`schema ${name} option disabled since it is named in schema ignnore list`);
+      console.debug(`Schema ${name} option disabled since it is named in schema ignnore list`);
       modelChoices.push({ name, value: name, checked: false });
     } else if (schemas[name].type !== "object") {
-      console.log(`excluding schema ${name} since it is not of type "object"`);
+      console.debug(`Excluding schema ${name} since it is not of type "object"`);
       modelChoices.push({ name, value: name, checked: false });
     } else {
       modelChoices.push({ name, value: name, checked: true });

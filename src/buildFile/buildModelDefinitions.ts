@@ -9,8 +9,6 @@ export default function buildModelDefinitionsFile(modelNames: string[]): string 
     return definitions + `${camelcase(modelName)}: ${modelName}Model,`;
   }, '');
 
-  console.log(modelsMap);
-
   const file = `
     import { Model } from 'miragejs';
     import type { ModelDefinition } from "miragejs/-types";

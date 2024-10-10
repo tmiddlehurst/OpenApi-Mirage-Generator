@@ -34,7 +34,7 @@ export default async function generate(inputFilePath: string, outputDir: string,
     spec = importFile(inputFilePath);
     spec = resolveRefs(spec);
   } catch (e) {
-    throw new Error(`Invalid file ${inputFilePath} provided, this is not valid JSON or YAML. ${e}`);
+    throw new Error(`Invalid file ${inputFilePath} provided. ${e}`);
   }
 
   if (spec?.components?.schemas && Object.keys(spec.components.schemas).length) {

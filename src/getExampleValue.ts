@@ -3,7 +3,7 @@ import { OpenAPIV3 } from 'openapi-types';
 
 export default function getExampleValue(schema: OpenAPIV3.SchemaObject, schemaName?: string): any {
   if (schemaName) {
-    console.log(`Property ${schemaName} is of type ${schema.type} `);
+    console.debug(`Property ${schemaName} is of type ${schema.type} `);
   }
   if (schema.anyOf) {
     return exampleObjectFromSchema(schema.anyOf[0] as OpenAPIV3.SchemaObject, schemaName);
@@ -39,7 +39,7 @@ export default function getExampleValue(schema: OpenAPIV3.SchemaObject, schemaNa
 }
 
 export function exampleObjectFromSchema(schema: OpenAPIV3.SchemaObject, schemaName?: string): string {
-  console.log('getting values for properties of: ', schemaName);
+  console.debug('Getting values for properties of: ', schemaName);
   let keyValPairs = '';
 
   if (schema.properties !== undefined) {

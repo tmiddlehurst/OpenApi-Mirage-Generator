@@ -39,7 +39,7 @@ export function isPluralOfOtherSchema(name: string, schemaNames: string[]): bool
       return true;
     } else return false;
   } else {
-    console.log(`${name} is not plural`);
+    console.debug(`${name} is not plural`);
     return false;
   }
 }

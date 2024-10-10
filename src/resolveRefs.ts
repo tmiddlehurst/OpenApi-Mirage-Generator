@@ -21,8 +21,8 @@ function recursiveReplace(baseObject: Record<string, any>, current?: Record<stri
     } else {
       if (key === '$ref') {
         refsFound += 1;
-        // Local Reference support only, e.g. references to items within the same document.
-        // Use a tool like redocly to combine them into one file
+        // Supports local references only
+        // We can assume this is true since the input spec has been passed through `redocly bundle`
         // https://redocly.com/docs/cli/commands/bundle
         if (current[key].startsWith('#/')) {
           const pathSegments = current[key].split('#/')[1].split('/');
@@ -45,9 +45,6 @@ function recursiveReplace(baseObject: Record<string, any>, current?: Record<stri
 export function getWithNestedPath(object: Record<string, any>, pathSegments: string[]): any {
   while (pathSegments.length > 0) {
     const key = pathSegments[0];
-    console.log('key: ', key);
-    console.log('current: ', object);
-    console.log('value: ', object[key]);
     object = object[key];
     pathSegments.shift();
   }

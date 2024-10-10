@@ -21,7 +21,6 @@ describe("Prompting member to choose models to define", () => {
     } as Record<string, OpenAPIV3.SchemaObject>;
 
     const filteredSchemas = getModelChoicesFromSchemas(schemas);
-    console.log(filteredSchemas);
     expect(filteredSchemas.length).toBe(2);
     expect(filteredSchemas[0].name).toBe('PutOrCall');
     expect(filteredSchemas[1].name).toBe('MemberNote');
@@ -48,7 +47,6 @@ describe("Prompting member to choose models to define", () => {
     } as Record<string, OpenAPIV3.SchemaObject>;
 
     const filteredSchemas = getModelChoicesFromSchemas(schemas);
-    console.log(filteredSchemas);
     expect(filteredSchemas.length).toBe(2);
     expect(filteredSchemas[1].checked).toBe(false);
   });
@@ -76,7 +74,6 @@ describe("Prompting member to choose models to define", () => {
     } as Record<string, OpenAPIV3.SchemaObject>;
 
     const filteredSchemas = getModelChoicesFromSchemas(schemas);
-    console.log(filteredSchemas);
     expect(filteredSchemas.length).toBe(2);
     // @ts-expect-error this always exists
     expect(filteredSchemas.find(s => s.name === 'MemberNotes').checked).toBe(false);
