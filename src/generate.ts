@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'node:path';
 import { OpenAPIV3 } from 'openapi-types';
-import promptUserForModels from './promptUserForModels';
+import { getLikelyModels } from './getModels';
 import buildServerFile from './buildFile/buildServer';
 import { type PromptFunction } from 'inquirer';
 import { importFile, writeFile, type FileToWrite } from './utils';
@@ -38,7 +38,7 @@ export default async function generate(inputFilePath: string, outputDir: string,
   }
 
   if (spec?.components?.schemas && Object.keys(spec.components.schemas).length) {
-    const { models } = await promptUserForModels(prompt, spec.components.schemas as Record<string, OpenAPIV3.SchemaObject>);
+    const models = getLikelyModels(spec.components.schemas as Record<string, OpenAPIV3.SchemaObject>);
 
     if (models.length) {
       const pathToFactories = path.join(outputDir, 'factories');
