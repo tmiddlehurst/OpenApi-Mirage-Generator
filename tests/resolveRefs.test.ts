@@ -1,8 +1,8 @@
 import resolveRefs, { getWithNestedPath } from '../src/resolveRefs';
 import { test, describe, expect } from 'bun:test';
-
-const shallowRefs = require('./test-specs/resolving-refs/shallow-refs.json');
-const nestedRefs = require('./test-specs/resolving-refs/nested-refs.json');
+// https://bun.sh/guides/runtime/import-json
+import shallowRefs from './test-specs/resolving-refs/shallow-refs.json';
+import nestedRefs from './test-specs/resolving-refs/nested-refs.json';
 
 test('getting with a nested path', () => {
   const input = JSON.parse(`{

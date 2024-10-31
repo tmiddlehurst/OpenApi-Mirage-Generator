@@ -17,8 +17,9 @@ export default function (handlers: HandlerConfig[]): string {
     verb: 'get' | 'post' | 'put' | 'patch' | 'delete';
     path: string;
   };
+  export type MirageRouteHandler = (schema: any, request: Request) => any;
 
-  const handlersMap = new Map<HandlerRequest, (schema: any, request: Request) => any>();
+  const handlersMap = new Map<HandlerRequest, MirageRouteHandler>();
   ${mapPuts}
 
   export default handlersMap;`;

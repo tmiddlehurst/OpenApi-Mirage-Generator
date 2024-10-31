@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'node:path';
 import { OpenAPIV3 } from 'openapi-types';
 import { getLikelyModels } from './getModels';
-import buildServerFile from './buildFile/buildServer';
+import buildServerFile from './buildFile/buildExampleServer';
 import { type PromptFunction } from 'inquirer';
 import { importFile, writeFile, type FileToWrite } from './utils';
 import buildModelDefinitionsFile from './buildFile/buildModelDefinitions';
@@ -69,7 +69,7 @@ export default async function generate(inputFilePath: string, outputDir: string,
     filesToWrite.push({ fileName: 'handlers.ts', content: buildHandlersMap(routeHandlerConfig) });
   }
 
-  filesToWrite.push({ fileName: 'server.ts', content: buildServerFile(routeHandlerConfig) });
+  filesToWrite.push({ fileName: 'example-server.ts', content: buildServerFile(routeHandlerConfig) });
 
   for (const fileToWrite of filesToWrite) {
     console.log('writing file: ', fileToWrite.fileName);
