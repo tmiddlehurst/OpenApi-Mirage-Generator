@@ -1,8 +1,8 @@
 import buildFactoryDefinitionsFile from '../src/buildFile/buildFactoryDefinitions';
 import { describe, test, expect } from 'bun:test';
-import { format } from '../src/utils';
+import { AutogenComment, format } from '../src/utils';
 
-const exampleFactoriesFile = `
+const exampleFactoriesFile = `${AutogenComment}
 import PetFactory from './factories/Pet';
 import UserAccountFactory from './factories/UserAccount';
 
