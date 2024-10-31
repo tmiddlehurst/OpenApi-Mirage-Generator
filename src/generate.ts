@@ -11,6 +11,7 @@ import buildFactoryFile from './buildFile/buildFactory';
 import buildRouteHandler from './buildFile/buildRouteHandler';
 import getHandlersFromPaths, { type HandlerConfig } from './getRouteHandlerConfig';
 import resolveRefs from './resolveRefs';
+import buildHandlersMap from './buildFile/buildHandlersMap';
 
 export default async function generate(inputFilePath: string, outputDir: string, prompt: PromptFunction, cleanup: () => void) {
   if (!inputFilePath && typeof inputFilePath !== "string") {
@@ -65,6 +66,7 @@ export default async function generate(inputFilePath: string, outputDir: string,
       // @ts-expect-error trust that buildRouteHandler returns correct path and methods
       filesToWrite.push({ fileName: `handlers/${handler.name}.ts`, content: buildRouteHandler(spec.paths[handler.path][handler.method], handler.name) });
     });
+    filesToWrite.push({ fileName: 'handlers.ts', content: buildHandlersMap(routeHandlerConfig) });
   }
 
   filesToWrite.push({ fileName: 'server.ts', content: buildServerFile(routeHandlerConfig) });
