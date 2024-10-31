@@ -1,11 +1,11 @@
 import { expect, test, describe } from 'bun:test';
 import buildRouteHandler, { getBody, getHeaders } from '../src/buildFile/buildRouteHandler';
-import { format } from '../src/utils';
+import { AutogenComment, format } from '../src/utils';
 
-const exampleRouteHandler = `
+const exampleRouteHandler = `${AutogenComment}
 import { Request, Response } from 'miragejs';\n\nexport default (schema, request: Request) => {\n  const headers = {};\n  const body = {\n    note: {\n      memberLoginName: 'TOMTESTING1',\n      text: 'This is a note',\n      adminUserLoginName: 'Thomas.middlehurst',\n      isHiddenInAdminGui: true,\n      created: '2021-01-01T00:00:00Z'\n    }\n  };\n\n  return new Response(200, headers, body);\n};\n`;
 
-const exampleRouteHandlerNoContent = `
+const exampleRouteHandlerNoContent = `${AutogenComment}
   import { Request, Response } from 'miragejs';
 
   export default (schema, request: Request) => {

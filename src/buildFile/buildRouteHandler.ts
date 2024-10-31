@@ -1,6 +1,7 @@
 import { OpenAPIV3 } from 'openapi-types';
 import _ from 'lodash';
 import getExampleValue from '../getExampleValue';
+import { AutogenComment } from '../utils';
 
 export default function buildRouteHandler(operationObject: OpenAPIV3.OperationObject, name?: string): string {
   let headers = '{ }';
@@ -15,6 +16,7 @@ export default function buildRouteHandler(operationObject: OpenAPIV3.OperationOb
   }
 
   return `
+  ${AutogenComment}
   import { Request, Response } from 'miragejs';
 
   export default (schema, request: Request) => {
