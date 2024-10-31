@@ -1,8 +1,8 @@
 import buildModelDefinitionsFile from '../src/buildFile/buildModelDefinitions';
 import { describe, test, expect } from 'bun:test';
-import { format } from '../src/utils';
+import { AutogenComment, format } from '../src/utils';
 
-const exampleModels = `
+const exampleModels = `${AutogenComment}
 import { Model } from 'miragejs';
 import type { ModelDefinition } from "miragejs/-types";
 

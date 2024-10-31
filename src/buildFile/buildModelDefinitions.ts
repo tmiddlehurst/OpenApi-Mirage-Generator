@@ -1,4 +1,5 @@
 import camelcase from 'camelcase';
+import { AutogenComment } from '../utils';
 
 export default function buildModelDefinitionsFile(modelNames: string[]): string {
   const modelDefinitions: string = modelNames.reduce((definitions, modelName) => {
@@ -10,6 +11,7 @@ export default function buildModelDefinitionsFile(modelNames: string[]): string 
   }, '');
 
   const file = `
+    ${AutogenComment}
     import { Model } from 'miragejs';
     import type { ModelDefinition } from "miragejs/-types";
 
