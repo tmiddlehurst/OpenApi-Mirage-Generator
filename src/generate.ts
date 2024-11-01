@@ -3,7 +3,6 @@ import path from 'node:path';
 import { OpenAPIV3 } from 'openapi-types';
 import { getLikelyModels } from './getModels';
 import buildServerFile from './buildFile/buildExampleServer';
-import { type PromptFunction } from 'inquirer';
 import { importFile, writeFile, type FileToWrite } from './utils';
 import buildModelDefinitionsFile from './buildFile/buildModelDefinitions';
 import buildFactoryDefinitionsFile from './buildFile/buildFactoryDefinitions';
@@ -12,8 +11,9 @@ import buildRouteHandler from './buildFile/buildRouteHandler';
 import getHandlersFromPaths, { type HandlerConfig } from './getRouteHandlerConfig';
 import resolveRefs from './resolveRefs';
 import buildHandlersMap from './buildFile/buildHandlersMap';
+import buildIndexFile from './buildFile/buildIndexFile';
 
-export default async function generate(inputFilePath: string, outputDir: string, prompt: PromptFunction, cleanup: () => void) {
+export default async function generate(inputFilePath: string, outputDir: string, cleanup: () => void) {
   if (!inputFilePath && typeof inputFilePath !== "string") {
     console.error("Invalid input file path provided");
   }
@@ -69,7 +69,8 @@ export default async function generate(inputFilePath: string, outputDir: string,
     filesToWrite.push({ fileName: 'handlers.ts', content: buildHandlersMap(routeHandlerConfig) });
   }
 
-  filesToWrite.push({ fileName: 'example-server.ts', content: buildServerFile(routeHandlerConfig) });
+  filesToWrite.push({ fileName: 'example-server.ts', content: buildServerFile() });
+  filesToWrite.push({ fileName: 'index.ts', content: buildIndexFile() });
 
   for (const fileToWrite of filesToWrite) {
     console.log('writing file: ', fileToWrite.fileName);

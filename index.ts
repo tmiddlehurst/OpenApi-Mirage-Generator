@@ -1,4 +1,3 @@
-import inquirer from 'inquirer';
 import generate from './src/generate';
 import { exec } from 'child_process';
 import fs from 'fs';
@@ -16,11 +15,13 @@ function cleanup() {
   });
 }
 
-const bundleStep = exec(`npx redocly bundle ${Bun.argv[2]} --output ./${TMP_BUNDLE_NAME}`);
+// TODO: clarify and handle errors around input parameters
+
+const bundleStep = exec(`npx @redocly/cli bundle ${Bun.argv[2]} --output ./${TMP_BUNDLE_NAME}`);
 bundleStep.on('exit', (code: number, signal) => {
   if (code === 0) {
     console.log(`Successfully bundled input spec into ./${TMP_BUNDLE_NAME}`);
-    generate(TMP_BUNDLE_NAME, Bun.argv[3], inquirer.prompt, cleanup);
+    generate(TMP_BUNDLE_NAME, Bun.argv[3], cleanup);
   } else {
     console.error(`Bundling with \`redocly bundle\` failed. Check that path $refs to files are valid and try again.\nSignal: ${signal}`);
   }
